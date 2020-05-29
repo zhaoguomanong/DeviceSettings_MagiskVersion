@@ -48,7 +48,7 @@ public class SettingsUtils {
             return;
         }
 
-        boolean status = RootCmd.execRootCmd("echo " + (enabled ? '1' : '0') + " > " + CAMERA_FOCUS_FIX_SYSFS);
+        boolean status = RootCmd.execRootCmd("echo " + (enabled ? '1' : '0') + " > " + CAMERA_FOCUS_FIX_SYSFS + "\n");
         Log.d(TAG, "writeCameraFocusFixSysfs: "
                 + enabled
                 + " "

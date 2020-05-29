@@ -18,6 +18,9 @@ package org.lineageos.settings.device;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.widget.Toast;
+
+import org.lineageos.settings.device.utils.RootCmd;
 
 public class LeecoPreferenceActivity extends PreferenceActivity {
 
@@ -27,5 +30,16 @@ public class LeecoPreferenceActivity extends PreferenceActivity {
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new LeecoPreferenceFragment())
                 .commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!RootCmd.haveRoot()) {
+            Toast.makeText(this,
+                    "Can't get root privileges, install magisk and grant this app with privileges",
+                    Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 }

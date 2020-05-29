@@ -19,6 +19,8 @@ package org.lineageos.settings.device;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+import org.lineageos.settings.device.utils.RootCmd;
 import org.lineageos.settings.device.utils.SystemProperties;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,16 +46,28 @@ public class SettingsUtils {
 
     public static void writeCameraFocusFixSysfs(boolean enabled) {
         if (!supportsCameraFocusFix()) return;
-        try {
-            FileOutputStream out = new FileOutputStream(new File(CAMERA_FOCUS_FIX_SYSFS));
-            OutputStreamWriter writer = new OutputStreamWriter(out);
-
-            writer.write(enabled ? '1' : '0');
-
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (!RootCmd.haveRoot()) {
+            Log.e(TAG, "writeCameraFocusFixSysfs failed, no root privileges");
+            return;
         }
+
+        boolean status = RootCmd.execRootCmd("echo " + (enabled ? '1' : '0') + " > " + CAMERA_FOCUS_FIX_SYSFS);
+        Log.d(TAG, "writeCameraFocusFixSysfs: "
+                + enabled
+                + " "
+                + (status ? "success" : "failed"));
+
+
+//        try {
+//            FileOutputStream out = new FileOutputStream(new File(CAMERA_FOCUS_FIX_SYSFS));
+//            OutputStreamWriter writer = new OutputStreamWriter(out);
+//
+//            writer.write(enabled ? '1' : '0');
+//
+//            writer.close();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     public static void writeQuickChargeProp(boolean enabled) {
@@ -62,6 +76,7 @@ public class SettingsUtils {
 
     public static void writeCameraHAL3Prop(boolean enable) {
         SystemProperties.set(CAMERA_HAL3_ENABLE_PROPERTY, enable ? "1" : "0");
+        restartCameraServer();
     }
 
     public static boolean cameraHAL3Enable() {
@@ -121,6 +136,22 @@ public class SettingsUtils {
             SharedPreferences.OnSharedPreferenceChangeListener preferenceListener) {
         SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
         settings.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+    }
+
+    public static void restartCameraServer() {
+        boolean hasRoot = RootCmd.haveRoot();
+        if (!hasRoot) {
+            Log.e(TAG, "restartCameraServer: no root");
+            return;
+        }
+
+        boolean success = RootCmd.execRootCmd("stop qcamerasvr ;"
+                + " start qcamerasvr ;"
+                + " stop vendor.camera-provider-2-4 ;"
+                + " start vendor.camera-provider-2-4\n");
+        Log.d(TAG, "restartCameraServer: " + (success ? "success" : "failed"));
+
+
     }
 
 }

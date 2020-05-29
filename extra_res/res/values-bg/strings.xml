@@ -115,4 +115,6 @@
     <string name="fingerprint_sleep_summary">Докоснете сензора за пръстови отпечатъци, за да изключите дисплея</string>
     <string name="high_touch_sensitivity_title">Висока чувствителност на допир</string>
     <string name="high_touch_sensitivity_summary">Увеличи сензорната чувствителност, така че може да се използва докато носите ръкавици</string>
+    <string name="quick_charge_title">Бързо зареждане</string>
+    <string name="camera_focus_fix_summary">Активирай, при проблеми с фокусирането на камерата </string>
 </resources>

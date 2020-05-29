@@ -115,4 +115,8 @@
     <string name="fingerprint_sleep_summary">Prem el sensor d\'empremta digital per apagar la pantalla</string>
     <string name="high_touch_sensitivity_title">Sensibilitat al tacte alta</string>
     <string name="high_touch_sensitivity_summary">Incrementa la sensibilitat de la pantalla tàctil de manera que pugui utilitzar-se si es porten guants</string>
+    <string name="quick_charge_title">Càrrega ràpida</string>
+    <string name="quick_charge_summary">Commuta la càrrega ràpida. Desconnecteu i torneu a connectar el carregador després de canviar aquesta configuració</string>
+    <string name="camera_focus_fix_title">Correcció del focus de la càmera</string>
+    <string name="camera_focus_fix_summary">Activeu-lo si teniu problemes amb la focalització de la càmera</string>
 </resources>

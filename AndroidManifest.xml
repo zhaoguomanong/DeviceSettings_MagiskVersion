@@ -11,19 +11,13 @@
         android:allowBackup="true"
         android:label="@string/device_settings_app_name"
         android:icon="@mipmap/ic_settings_black_48dp"
-        android:persistent="true">
-
-        <receiver android:name="org.lineageos.settings.device.BootCompletedReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
+        >
         <activity
             android:name=".LeecoPreferenceActivity"
             android:label="@string/device_settings_app_name"
-            android:theme="@style/DeviceSettings">
+            android:theme="@style/DeviceSettings"
+            android:launchMode="singleInstance"
+            >
             <intent-filter>
                 <action android:name="com.android.settings.action.IA_SETTINGS" />
             </intent-filter>

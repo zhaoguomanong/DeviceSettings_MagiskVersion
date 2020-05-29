@@ -18,7 +18,6 @@ package org.lineageos.settings.device;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 import org.lineageos.settings.device.utils.RootCmd;
@@ -26,9 +25,9 @@ import org.lineageos.settings.device.utils.SystemProperties;
 
 public class SettingsUtils {
     public static final String TAG = "SettingsUtils";
-    public static final String CAMERA_FOCUS_FIX_ENABLED =
-            "CAMERA_FOCUS_FIX_ENABLED";
-    public static final String QUICK_CHARGE_ENABLED = "QUICK_CHARGE_ENABLED";
+//    public static final String CAMERA_FOCUS_FIX_ENABLED =
+//            "CAMERA_FOCUS_FIX_ENABLED";
+//    public static final String QUICK_CHARGE_ENABLED = "QUICK_CHARGE_ENABLED";
 
     public static final String CAMERA_FOCUS_FIX_SYSFS =
             "/sys/module/msm_actuator/parameters/use_focus_fix";
@@ -39,7 +38,7 @@ public class SettingsUtils {
 
     private static final String CAMERA_HAL3_ENABLE_PROPERTY = "persist.camera.HAL3.enabled";
 
-    public static final String PREFERENCES = "SettingsUtilsPreferences";
+    //public static final String PREFERENCES = "SettingsUtilsPreferences";
 
     public static void writeCameraFocusFixSysfs(boolean enabled) {
         if (!supportsCameraFocusFix()) return;
@@ -97,45 +96,50 @@ public class SettingsUtils {
         return true;
     }
 
-    public static boolean setCameraFocusFixEnabled(Context context, boolean enabled) {
-        return putInt(context, CAMERA_FOCUS_FIX_ENABLED, enabled ? 1 : 0);
+//    public static boolean setCameraFocusFixEnabled(Context context, boolean enabled) {
+//        return putInt(context, CAMERA_FOCUS_FIX_ENABLED, enabled ? 1 : 0);
+//    }
+
+    public static boolean getCameraFocusFixEnabled() {
+        String currentValue = rootReadFile(CAMERA_FOCUS_FIX_SYSFS);
+        if (TextUtils.isEmpty(currentValue)) {
+            return false;
+        }
+        return TextUtils.equals(currentValue, "1")
+                || TextUtils.equals(currentValue.toUpperCase(), "Y");
     }
 
-    public static boolean getCameraFocusFixEnabled(Context context) {
-        return getInt(context, CAMERA_FOCUS_FIX_ENABLED, 0) == 1;
+//    public static boolean setQuickChargeEnabled(Context context, boolean enabled) {
+//        return putInt(context, QUICK_CHARGE_ENABLED, enabled ? 1 : 0);
+//    }
+
+    public static boolean getQuickChargeEnabled() {
+        return TextUtils.equals("1", SystemProperties.get(QC_SYSTEM_PROPERTY, "0"));
     }
 
-    public static boolean setQuickChargeEnabled(Context context, boolean enabled) {
-        return putInt(context, QUICK_CHARGE_ENABLED, enabled ? 1 : 0);
-    }
+//    public static int getInt(Context context, String name, int def) {
+//        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
+//        return settings.getInt(name, def);
+//    }
+//
+//    public static boolean putInt(Context context, String name, int value) {
+//        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
+//        SharedPreferences.Editor editor = settings.edit();
+//        editor.putInt(name, value);
+//        return editor.commit();
+//    }
 
-    public static boolean getQuickChargeEnabled(Context context) {
-        return getInt(context, QUICK_CHARGE_ENABLED, 1) == 1;
-    }
-
-    public static int getInt(Context context, String name, int def) {
-        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
-        return settings.getInt(name, def);
-    }
-
-    public static boolean putInt(Context context, String name, int value) {
-        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(name, value);
-        return editor.commit();
-    }
-
-    public static void registerPreferenceChangeListener(Context context,
-            SharedPreferences.OnSharedPreferenceChangeListener preferenceListener) {
-        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
-        settings.registerOnSharedPreferenceChangeListener(preferenceListener);
-    }
-
-    public static void unregisterPreferenceChangeListener(Context context,
-            SharedPreferences.OnSharedPreferenceChangeListener preferenceListener) {
-        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
-        settings.unregisterOnSharedPreferenceChangeListener(preferenceListener);
-    }
+//    public static void registerPreferenceChangeListener(Context context,
+//            SharedPreferences.OnSharedPreferenceChangeListener preferenceListener) {
+//        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
+//        settings.registerOnSharedPreferenceChangeListener(preferenceListener);
+//    }
+//
+//    public static void unregisterPreferenceChangeListener(Context context,
+//            SharedPreferences.OnSharedPreferenceChangeListener preferenceListener) {
+//        SharedPreferences settings = context.getSharedPreferences(PREFERENCES, 0);
+//        settings.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+//    }
 
     public static void restartCameraServer() {
         boolean hasRoot = RootCmd.haveRoot();
@@ -162,6 +166,14 @@ public class SettingsUtils {
         String result = RootCmd.execRootCmdWithResults("[[ -f " + filePath + " ]] && echo 1 || echo 0 \n");
         Log.d(TAG, "rootCheckFileExists: file = " + filePath + ", results = " + result);
         return TextUtils.equals("1", result);
+    }
+
+    public static String rootReadFile(String filePath) {
+        if (!rootCheckFileExists(filePath)) {
+            return null;
+        }
+        String content = RootCmd.execRootCmdWithResults("cat " + filePath + "\n");
+        return content;
     }
 
 }

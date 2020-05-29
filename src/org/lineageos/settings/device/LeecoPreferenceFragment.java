@@ -39,7 +39,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.leeco_settings_panel);
-        Log.d(TAG, "onCreatePreferences+++");
+        Log.d(TAG, "onCreate+++");
         final PreferenceScreen prefSet = getPreferenceScreen();
         mCameraFocusFixEnable = (SwitchPreference) findPreference(KEY_CAMERA_FOCUS_FIX_ENABLE);
         mQuickChargeEnable = (SwitchPreference) findPreference(KEY_QUICK_CHARGE_ENABLE);
@@ -47,7 +47,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
         if (SettingsUtils.supportCamHalLevelSwitch()) {
             mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
-            Log.d(TAG, "onCreatePreferences: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
+            Log.d(TAG, "onCreate: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
             mCamHal3Enable.setOnPreferenceChangeListener(mPrefListener);
         } else {
             prefSet.removePreference(mCamHal3Enable);
@@ -55,23 +55,23 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
 
         if (SettingsUtils.supportsCameraFocusFix()) {
-            mCameraFocusFixEnable.setChecked(SettingsUtils.getCameraFocusFixEnabled(getActivity()));
+            mCameraFocusFixEnable.setChecked(SettingsUtils.getCameraFocusFixEnabled());
             mCameraFocusFixEnable.setOnPreferenceChangeListener(mPrefListener);
-            Log.d(TAG, "onCreatePreferences: cam focus fix enable = "
-                    + SettingsUtils.getCameraFocusFixEnabled(getActivity()));
+            Log.d(TAG, "onCreate: cam focus fix enable = "
+                    + SettingsUtils.getCameraFocusFixEnabled());
         } else {
             prefSet.removePreference(mCameraFocusFixEnable);
         }
 
         if (SettingsUtils.supportsQuickChargeSwitch()) {
-            mQuickChargeEnable.setChecked(SettingsUtils.getQuickChargeEnabled(getActivity()));
+            mQuickChargeEnable.setChecked(SettingsUtils.getQuickChargeEnabled());
             mQuickChargeEnable.setOnPreferenceChangeListener(mPrefListener);
-            Log.d(TAG, "onCreatePreferences: quick charge enable = "
-                    + SettingsUtils.getQuickChargeEnabled(getActivity()));
+            Log.d(TAG, "onCreate: quick charge enable = "
+                    + SettingsUtils.getQuickChargeEnabled());
         } else {
             prefSet.removePreference(mQuickChargeEnable);
         }
-        Log.d(TAG, "onCreatePreferences---");
+        Log.d(TAG, "onCreate---");
     }
 
     @Override
@@ -96,6 +96,20 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
             Log.d(TAG, "onResume: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
         }
+
+        if (SettingsUtils.supportsCameraFocusFix()
+                && null != mCameraFocusFixEnable) {
+            mCameraFocusFixEnable.setChecked(SettingsUtils.getCameraFocusFixEnabled());
+            Log.d(TAG, "onResume: cam focus fix enable = "
+                    + SettingsUtils.getCameraFocusFixEnabled());
+        }
+
+        if (SettingsUtils.supportsQuickChargeSwitch()
+                && null != mQuickChargeEnable) {
+            mQuickChargeEnable.setChecked(SettingsUtils.getQuickChargeEnabled());
+            Log.d(TAG, "onResume: quick charge enable = "
+                    + SettingsUtils.getQuickChargeEnabled());
+        }
         Log.d(TAG, "onResume---");
     }
 
@@ -107,12 +121,12 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
             if (KEY_CAMERA_FOCUS_FIX_ENABLE.equals(key)) {
                 boolean enabled = (boolean) value;
-                SettingsUtils.setCameraFocusFixEnabled(getActivity(), enabled);
+//                SettingsUtils.setCameraFocusFixEnabled(getActivity(), enabled);
                 SettingsUtils.writeCameraFocusFixSysfs(enabled);
                 Log.d(TAG, "onPreferenceChange: cam focus fix enable = " + enabled);
             } else if (KEY_QUICK_CHARGE_ENABLE.equals(key)) {
                 boolean enabled = (boolean) value;
-                SettingsUtils.setQuickChargeEnabled(getActivity(), enabled);
+//                SettingsUtils.setQuickChargeEnabled(getActivity(), enabled);
                 SettingsUtils.writeQuickChargeProp(enabled);
                 Log.d(TAG, "onPreferenceChange: quick charge enable = " + enabled);
             } else if (KEY_CAMHAL3_ENABLE.equals(key)) {

@@ -15,6 +15,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="leeco_settings_title">LeEco Settings</string>
+    <string name="leeco_settings_summary">Device specific settings</string>
     <string name="camera_hal3_title">Camera HAL3</string>
     <string name="camera_hal3_summary">Disabling HAL3 will force the usage of HAL1 instead. Please note that Gcam mods require HAL3 and you must wait a minute before using a camera app as it will take time to restart the camera HAL and Service.</string>
 </resources>

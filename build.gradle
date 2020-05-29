@@ -1,0 +1,109 @@
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply plugin: 'com.android.application'
+
+allprojects {
+    repositories {
+        jcenter()
+        flatDir {
+            dirs 'libs'
+        }
+        google()
+    }
+
+}
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        applicationId "org.lineageos.settings.device.magisk"
+        minSdkVersion 27
+        targetSdkVersion 29
+        versionCode 3
+        versionName "3.0"
+    }
+
+    externalNativeBuild {
+
+    }
+
+	lintOptions {
+//			checkReleaseBuilds false
+			// Or, if you prefer, you can continue to check for errors in release builds,
+			// but continue the build even when errors are found:
+        abortOnError false
+	}
+    signingConfigs {
+
+        aosp {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('keystore.jks')
+            storePassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            // print LOG
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.aosp
+
+        }
+
+        release {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.aosp
+        }// release
+    }// buildType end
+
+    sourceSets {
+        main {
+            res.srcDirs = ['res', 'extra_res/res']
+            java.srcDirs 'src'
+            manifest.srcFile 'AndroidManifest.xml'
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    applicationVariants.all {
+        def fileName
+        fileName = "DeviceSettings_Magisk.apk"
+        it.outputs.each {
+            it.outputFileName = fileName
+        }
+    }
+
+    dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation 'androidx.preference:preference:1.1.1'
+        implementation 'androidx.core:core:1.3.0'
+    }
+}
+

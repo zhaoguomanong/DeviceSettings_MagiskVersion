@@ -14,24 +14,27 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/list_container"
+    >
 
-    <SwitchPreference
+    <androidx.preference.SwitchPreference
         android:key="camera_focus_enable"
         android:defaultValue="false"
         android:title="@string/camera_focus_fix_title"
         android:summary="@string/camera_focus_fix_summary" />
 
-    <SwitchPreference
+    <androidx.preference.SwitchPreference
         android:key="key_camera_hal3_enable"
         android:defaultValue="true"
         android:title="@string/camera_hal3_title"
         android:summary="@string/camera_hal3_summary" />
 
-    <SwitchPreference
+    <androidx.preference.SwitchPreference
         android:key="quick_charge_enable"
         android:defaultValue="true"
         android:title="@string/quick_charge_title"
         android:summary="@string/quick_charge_summary" />
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

@@ -17,12 +17,14 @@
 package org.lineageos.settings.device;
 
 import android.os.Bundle;
-import android.provider.Settings;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 public class LeecoPreferenceFragment extends PreferenceFragment {
 
@@ -37,15 +39,10 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private SwitchPreference mCamHal3Enable;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        Log.d(TAG, "onCreatePreferences+++");
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.leeco_settings_panel);
+        Log.d(TAG, "onCreatePreferences+++");
         final PreferenceScreen prefSet = getPreferenceScreen();
         mCameraFocusFixEnable = (SwitchPreference) findPreference(KEY_CAMERA_FOCUS_FIX_ENABLE);
         mQuickChargeEnable = (SwitchPreference) findPreference(KEY_QUICK_CHARGE_ENABLE);
@@ -78,6 +75,17 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             prefSet.removePreference(mQuickChargeEnable);
         }
         Log.d(TAG, "onCreatePreferences---");
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+
     }
 
     @Override

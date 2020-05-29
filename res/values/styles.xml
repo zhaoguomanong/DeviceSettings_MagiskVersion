@@ -45,7 +45,8 @@
         <item name="android:layout">@layout/preference_material_settings</item>
     </style>
 
-    <style name="DeviceSettings.PreferenceTheme">
+    <style name="DeviceSettings.PreferenceTheme" parent="@style/PreferenceThemeOverlay">
+        <item name="android:layout">@layout/preference_root</item>
     </style>
 
     <style name="DeviceSettings.SwitchPreferenceStyle" parent="@style/DeviceSettings.PreferenceStyle">

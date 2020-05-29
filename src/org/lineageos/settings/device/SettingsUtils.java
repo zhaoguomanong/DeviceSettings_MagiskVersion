@@ -83,13 +83,15 @@ public class SettingsUtils {
     public static boolean supportsCameraFocusFix() {
 //        File focusFixPath = new File(CAMERA_FOCUS_FIX_SYSFS);
 //        return focusFixPath.exists();
-        return rootCheckFileExists(CAMERA_FOCUS_FIX_SYSFS);
+//        return rootCheckFileExists(CAMERA_FOCUS_FIX_SYSFS);
+        return false;
     }
 
     public static boolean supportsQuickChargeSwitch() {
 //        File QCPath = new File(QUICK_CHARGE_SYSFS);
 //        return QCPath.exists();
-        return rootCheckFileExists(QUICK_CHARGE_SYSFS);
+//        return rootCheckFileExists(QUICK_CHARGE_SYSFS);
+        return false;
     }
 
     public static boolean supportCamHalLevelSwitch() {

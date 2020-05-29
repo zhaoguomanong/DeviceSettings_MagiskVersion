@@ -90,26 +90,26 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         super.onResume();
         Log.d(TAG, "onResume+++");
         getListView().setPadding(0, 0, 0, 0);
-        //prop maybe modify by adb when onpause, so check from prop again
-        if (SettingsUtils.supportCamHalLevelSwitch()
-                && null != mCamHal3Enable) {
-            mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
-            Log.d(TAG, "onResume: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
-        }
-
-        if (SettingsUtils.supportsCameraFocusFix()
-                && null != mCameraFocusFixEnable) {
-            mCameraFocusFixEnable.setChecked(SettingsUtils.getCameraFocusFixEnabled());
-            Log.d(TAG, "onResume: cam focus fix enable = "
-                    + SettingsUtils.getCameraFocusFixEnabled());
-        }
-
-        if (SettingsUtils.supportsQuickChargeSwitch()
-                && null != mQuickChargeEnable) {
-            mQuickChargeEnable.setChecked(SettingsUtils.getQuickChargeEnabled());
-            Log.d(TAG, "onResume: quick charge enable = "
-                    + SettingsUtils.getQuickChargeEnabled());
-        }
+//        //prop maybe modify by adb when onpause, so check from prop again
+//        if (SettingsUtils.supportCamHalLevelSwitch()
+//                && null != mCamHal3Enable) {
+//            mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
+//            Log.d(TAG, "onResume: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
+//        }
+//
+//        if (SettingsUtils.supportsCameraFocusFix()
+//                && null != mCameraFocusFixEnable) {
+//            mCameraFocusFixEnable.setChecked(SettingsUtils.getCameraFocusFixEnabled());
+//            Log.d(TAG, "onResume: cam focus fix enable = "
+//                    + SettingsUtils.getCameraFocusFixEnabled());
+//        }
+//
+//        if (SettingsUtils.supportsQuickChargeSwitch()
+//                && null != mQuickChargeEnable) {
+//            mQuickChargeEnable.setChecked(SettingsUtils.getQuickChargeEnabled());
+//            Log.d(TAG, "onResume: quick charge enable = "
+//                    + SettingsUtils.getQuickChargeEnabled());
+//        }
         Log.d(TAG, "onResume---");
     }
 

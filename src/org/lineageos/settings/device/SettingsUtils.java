@@ -19,13 +19,10 @@ package org.lineageos.settings.device;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 import org.lineageos.settings.device.utils.RootCmd;
 import org.lineageos.settings.device.utils.SystemProperties;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 public class SettingsUtils {
     public static final String TAG = "SettingsUtils";
@@ -85,13 +82,15 @@ public class SettingsUtils {
     }
 
     public static boolean supportsCameraFocusFix() {
-        File focusFixPath = new File(CAMERA_FOCUS_FIX_SYSFS);
-        return focusFixPath.exists();
+//        File focusFixPath = new File(CAMERA_FOCUS_FIX_SYSFS);
+//        return focusFixPath.exists();
+        return rootCheckFileExists(CAMERA_FOCUS_FIX_SYSFS);
     }
 
     public static boolean supportsQuickChargeSwitch() {
-        File QCPath = new File(QUICK_CHARGE_SYSFS);
-        return QCPath.exists();
+//        File QCPath = new File(QUICK_CHARGE_SYSFS);
+//        return QCPath.exists();
+        return rootCheckFileExists(QUICK_CHARGE_SYSFS);
     }
 
     public static boolean supportCamHalLevelSwitch() {
@@ -152,6 +151,17 @@ public class SettingsUtils {
         Log.d(TAG, "restartCameraServer: " + (success ? "success" : "failed"));
 
 
+    }
+
+    public static boolean rootCheckFileExists(String filePath) {
+        boolean hasRoot = RootCmd.haveRoot();
+        if (!hasRoot) {
+            Log.e(TAG, "restartCameraServer: no root");
+            return false;
+        }
+        String result = RootCmd.execRootCmdWithResults("[[ -f " + filePath + " ]] && echo 1 || echo 0 \n");
+        Log.d(TAG, "rootCheckFileExists: file = " + filePath + ", results = " + result);
+        return TextUtils.equals("1", result);
     }
 
 }

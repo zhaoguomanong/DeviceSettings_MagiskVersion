@@ -74,6 +74,54 @@ public class RootCmd {
         return success;
     }
 
+    public static String execRootCmdWithResults(String cmd) {
+        String result = "";
+        DataOutputStream dos = null;
+        DataInputStream dis = null;
+        boolean success = true;
+
+        try {
+            Process p = Runtime.getRuntime().exec("su");// 经过Root处理的android系统即有su命令
+            dos = new DataOutputStream(p.getOutputStream());
+            dis = new DataInputStream(p.getInputStream());
+
+            Log.i(TAG, cmd);
+            dos.writeBytes(cmd + "\n");
+            dos.flush();
+            dos.writeBytes("exit\n");
+            dos.flush();
+            String line = null;
+            while ((line = dis.readLine()) != null) {
+                Log.d("result", line);
+                result += line;
+            }
+            p.waitFor();
+            success = p.exitValue() == 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            success = false;
+        } finally {
+            if (dos != null) {
+                try {
+                    dos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    success = false;
+                }
+            }
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    success = false;
+                }
+            }
+        }
+        Log.d(TAG, "result = " + result);
+        return result;
+    }
+
     /**
      * 执行命令但不关注结果输出
      */

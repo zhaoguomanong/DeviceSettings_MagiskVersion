@@ -27,6 +27,7 @@ import org.lineageos.settings.device.utils.Operator;
 import org.lineageos.settings.device.utils.RootCmd;
 import org.lineageos.settings.device.utils.SettingsProviderUtils;
 import org.lineageos.settings.device.utils.SystemProperties;
+import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.Utils;
 import java.util.List;
 
@@ -90,13 +91,23 @@ public class SettingsUtils {
                 || chinaUnicomSubId < 0) {
             Log.e(TAG, "find subId failed");
         }
-        if (enable) {
-            SettingsProviderUtils.setPreferredNetwork(chinaUnicomSubId, Utils.NETWORK_MODE_GSM_ONLY);
-            SettingsProviderUtils.setPreferredNetwork(chinaTelecomSubId, Utils.NETWORK_MODE_GLOBAL);
-        } else {
-            SettingsProviderUtils.setPreferredNetwork(chinaUnicomSubId, Utils.NETWORK_MODE_GLOBAL);
-            SettingsProviderUtils.setPreferredNetwork(chinaTelecomSubId, Utils.NETWORK_MODE_LTE_ONLY);
-        }
+        final int CT_SUBID = chinaTelecomSubId;
+        final int CU_SUBID = chinaUnicomSubId;
+        ThreadPoolUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                Utils.isSwitchingCDMA = true;
+                if (enable) {
+                    SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY);
+                    SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
+                } else {
+                    SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GLOBAL);
+                    SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
+                }
+                Utils.isSwitchingCDMA = false;
+            }
+        });
+
     }
 
     public static boolean supportSwitchCDMAFeature() {

@@ -23,6 +23,9 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 import android.util.Log;
 
+import org.lineageos.settings.device.utils.ToastUtils;
+import org.lineageos.settings.device.utils.Utils;
+
 public class LeecoPreferenceFragment extends PreferenceFragment {
 
     private static final String TAG = "LeecoPreferenceFragment";
@@ -90,6 +93,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 Log.d(TAG, "onPreferenceChange: cam hal3 enable = " + enabled);
             } else if (KEY_CDMA_ENABLE.equals(key)) {
                 boolean enabled = (boolean) value;
+                if (Utils.isSwitchingCDMA) {
+                    ToastUtils.showLimited("正在切换网络, 请稍候...");
+                    if (null != mCDMA) {
+                        mCDMA.setChecked(SettingsUtils.isCDMAEnabled());
+                    }
+                    return false;
+                }
                 SettingsUtils.setCDMAEnable(enabled);
                 Log.d(TAG, "onPreferenceChange: CDMA enable = " + enabled);
             }

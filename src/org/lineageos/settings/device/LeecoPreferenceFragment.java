@@ -96,8 +96,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 if (Utils.isSwitchingCDMA) {
                     ToastUtils.showLimited("正在切换网络, 请稍候...");
                     if (null != mCDMA) {
-                        mCDMA.setChecked(SettingsUtils.isCDMAEnabled());
+                        mCDMA.setChecked(!enabled);
                     }
+                    return false;
+                }
+                boolean cdmaOld = SettingsUtils.isCDMAEnabled();
+                if (cdmaOld == enabled) {
+                    Log.e(TAG, "the state of cdma toggle is messed up, return");
                     return false;
                 }
                 SettingsUtils.setCDMAEnable(enabled);

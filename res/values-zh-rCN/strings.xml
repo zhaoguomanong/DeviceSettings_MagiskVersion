@@ -17,4 +17,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="camera_hal3_title">Camera HAL3</string>
     <string name="camera_hal3_summary">禁用HAL3将会启用HAL1. 切换HAL后请等待几秒再使用相机, 因为底层切换需要时间. 注意谷歌相机只能在HAL3下工作.</string>
+    <string name="core_permissions_lost">当前应用缺少必要权限，无法正常使用，请进入设置打开相应权限</string>
 </resources>

@@ -6,8 +6,13 @@ import android.content.Context;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
+
+import org.lineageos.settings.device.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +52,9 @@ public class PermissionsUtils {
             @Override
             public void permissionDenied(@NonNull String[] permission) {
                 Log.d(TAG, "permissionDenied: " + Arrays.deepToString(permission));
+                Toast.makeText(Utils.applicationContext,
+                        R.string.core_permissions_lost,
+                        Toast.LENGTH_SHORT).show();
                 PermissionsUtil.gotoSetting(activity);
             }
 

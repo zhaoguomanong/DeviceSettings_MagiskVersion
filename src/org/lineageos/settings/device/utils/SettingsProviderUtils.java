@@ -103,4 +103,14 @@ public class SettingsProviderUtils {
 
 
     }
+
+    public static int getPreferredNetwork(int subId) {
+        final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY =
+                (String) ReflectionUtils.getStaticAttribute(
+                        "android.provider.Settings$Global",
+                        "PREFERRED_NETWORK_MODE");
+        return Settings.Global.getInt(Utils.applicationContext.getContentResolver(),
+                PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY + subId,
+                Utils.NETWORK_MODE_GLOBAL);
+    }
 }

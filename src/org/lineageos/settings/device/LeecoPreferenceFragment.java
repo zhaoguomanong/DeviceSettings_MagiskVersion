@@ -45,6 +45,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             mCDMA.setOnPreferenceChangeListener(mPrefListener);
         } else {
             prefSet.removePreference(mCDMA);
+            mCDMA = null;
         }
         Log.d(TAG, "onCreate: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
         mCamHal3Enable.setOnPreferenceChangeListener(mPrefListener);
@@ -70,6 +71,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         if (null != mCamHal3Enable) {
             mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
             Log.d(TAG, "onResume: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
+        }
+        if (null != mCDMA) {
+            mCDMA.setChecked(SettingsUtils.isCDMAEnabled());
         }
         Log.d(TAG, "onResume---");
     }

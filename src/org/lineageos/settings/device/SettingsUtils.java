@@ -131,4 +131,46 @@ public class SettingsUtils {
         return hasChinaTelecom && hasChinaUnicom;
     }
 
+    public static boolean isCDMAEnabled() {
+        if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return false;
+        }
+        List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
+                .getActiveSubscriptionInfoList();
+        if (null == list || list.isEmpty()) {
+            return false;
+        }
+        int chinaTelecomSubId = -1;
+        int chinaUnicomSubId = -1;
+        for (SubscriptionInfo subscriptionInfo : list) {
+            int subId = subscriptionInfo.getSubscriptionId();
+            Operator operator = Utils.toOperator(subscriptionInfo);
+            if (operator == Operator.CHINA_TELECOM) {
+                chinaTelecomSubId = subId;
+            } else if (operator == Operator.CHINA_UNICOM) {
+                chinaUnicomSubId = subId;
+            }
+            Log.d(TAG, "subId = " + subId
+                    + ", operator = " + operator);
+        }
+        if (chinaTelecomSubId < 0
+                || chinaUnicomSubId < 0) {
+            Log.e(TAG, "find subId failed");
+            return false;
+        }
+        int cTPrefNet = SettingsProviderUtils.getPreferredNetwork(chinaTelecomSubId);
+        int cUPrefNet = SettingsProviderUtils.getPreferredNetwork(chinaUnicomSubId);
+        return cUPrefNet == Utils.NETWORK_MODE_GSM_ONLY
+                && cTPrefNet == Utils.NETWORK_MODE_GLOBAL;
+
+    }
+
 }

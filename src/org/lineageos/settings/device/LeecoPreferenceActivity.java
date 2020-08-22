@@ -19,17 +19,19 @@ package org.lineageos.settings.device;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.widget.Toast;
-
+import org.lineageos.settings.device.utils.PermissionsUtils;
 import org.lineageos.settings.device.utils.RootCmd;
 
 public class LeecoPreferenceActivity extends PreferenceActivity {
 
+    private boolean hasCommitTransaction = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new LeecoPreferenceFragment())
-                .commit();
+        if (!PermissionsUtils.isMissingCorePermissions(this)) {
+            beginTransaction();
+        }
     }
 
     @Override
@@ -41,5 +43,21 @@ public class LeecoPreferenceActivity extends PreferenceActivity {
                     Toast.LENGTH_SHORT).show();
             finish();
         }
+        if (PermissionsUtils.isMissingCorePermissions(this)) {
+            PermissionsUtils.requestPermissions(this);
+            hasCommitTransaction = false;
+            return;
+        }
+        if (!hasCommitTransaction) {
+            beginTransaction();
+        }
+
+    }
+
+    private void beginTransaction() {
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new LeecoPreferenceFragment())
+                .commit();
+        hasCommitTransaction = true;
     }
 }

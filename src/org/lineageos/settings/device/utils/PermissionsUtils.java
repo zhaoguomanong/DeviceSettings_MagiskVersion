@@ -7,12 +7,9 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
-
 import org.lineageos.settings.device.R;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

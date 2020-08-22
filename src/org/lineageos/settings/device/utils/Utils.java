@@ -72,5 +72,4 @@ public class Utils {
         return operator;
     }
 
-
 }

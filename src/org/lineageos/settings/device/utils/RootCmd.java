@@ -1,7 +1,6 @@
 package org.lineageos.settings.device.utils;
 
 import android.util.Log;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

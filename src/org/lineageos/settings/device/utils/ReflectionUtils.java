@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 The LineageOS Project
+ * Copyright (c) 2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.lineageos.settings.device.utils;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -31,7 +30,7 @@ public class ReflectionUtils {
     private ReflectionUtils() {}
 
     public static Object invokeMethod(
-        Object instance, String methodName, Class[] argsClass, Object[] args) {
+            Object instance, String methodName, Class[] argsClass, Object[] args) {
         if (instance == null || TextUtils.isEmpty(methodName)) {
             return null;
         }
@@ -74,7 +73,7 @@ public class ReflectionUtils {
     }
 
     public static Object invokeStaticMethod(
-        String clazzName, String methodName, Class[] argsClass, Object[] args) {
+            String clazzName, String methodName, Class[] argsClass, Object[] args) {
         if (TextUtils.isEmpty(clazzName) || TextUtils.isEmpty(methodName)) {
             return null;
         }
@@ -188,15 +187,15 @@ public class ReflectionUtils {
         return null;
     }
     public static Object instance(String clazz)
-        throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Class classType = Class.forName(clazz);
         Object object = classType.newInstance();
         return object;
     }
 
     public static Object instance(String clazz, Class[] paramTypes, Object[] params)
-        throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
-               InvocationTargetException, InstantiationException {
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException, InstantiationException {
         Class classType = Class.forName(clazz);
         Constructor constructor = classType.getConstructor(paramTypes);
         Object object = constructor.newInstance(params);
@@ -204,8 +203,8 @@ public class ReflectionUtils {
     }
 
     public static Object instance(String clazz, Object[] params)
-        throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
-               InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+            InstantiationException, IllegalAccessException {
         Class[] paramTypes = {Context.class};
         return instance(clazz, paramTypes, params);
     }

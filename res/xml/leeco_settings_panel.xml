@@ -22,5 +22,10 @@
         android:defaultValue="true"
         android:title="@string/camera_hal3_title"
         android:summary="@string/camera_hal3_summary" />
+    <androidx.preference.SwitchPreference
+        android:key="key_cdma_enable"
+        android:defaultValue="false"
+        android:title="@string/cdma_title"
+        android:summary="@string/cdma_summary" />
 
 </androidx.preference.PreferenceScreen>

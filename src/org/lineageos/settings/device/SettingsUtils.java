@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 The LineageOS Project
+ * Copyright (c) 2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,19 @@
 
 package org.lineageos.settings.device;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
+import androidx.core.app.ActivityCompat;
+import org.lineageos.settings.device.utils.Operator;
 import org.lineageos.settings.device.utils.RootCmd;
+import org.lineageos.settings.device.utils.SettingsProviderUtils;
 import org.lineageos.settings.device.utils.SystemProperties;
+import org.lineageos.settings.device.utils.Utils;
+import java.util.List;
 
 public class SettingsUtils {
     public static final String TAG = "SettingsUtils";
@@ -48,6 +57,78 @@ public class SettingsUtils {
         Log.d(TAG, "restartCameraServer: " + (success ? "success" : "failed"));
 
 
+    }
+
+    public static void setCDMAEnable(boolean enable) {
+        Log.d(TAG, "setCDMAEnable: " + enable);
+        if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext).getActiveSubscriptionInfoList();
+        int chinaTelecomSubId = -1;
+        int chinaUnicomSubId = -1;
+        for (SubscriptionInfo subscriptionInfo : list) {
+            int subId = subscriptionInfo.getSubscriptionId();
+            Operator operator = Utils.toOperator(subscriptionInfo);
+            if (operator == Operator.CHINA_TELECOM) {
+                chinaTelecomSubId = subId;
+            } else if (operator == Operator.CHINA_UNICOM) {
+                chinaUnicomSubId = subId;
+            }
+            Log.d(TAG, "subId = " + subId
+                    + ", operator = " + operator);
+        }
+        if (chinaTelecomSubId < 0
+                || chinaUnicomSubId < 0) {
+            Log.e(TAG, "find subId failed");
+        }
+        if (enable) {
+            SettingsProviderUtils.setPreferredNetwork(chinaUnicomSubId, Utils.NETWORK_MODE_GSM_ONLY);
+            SettingsProviderUtils.setPreferredNetwork(chinaTelecomSubId, Utils.NETWORK_MODE_GLOBAL);
+        } else {
+            SettingsProviderUtils.setPreferredNetwork(chinaUnicomSubId, Utils.NETWORK_MODE_GLOBAL);
+            SettingsProviderUtils.setPreferredNetwork(chinaTelecomSubId, Utils.NETWORK_MODE_LTE_ONLY);
+        }
+    }
+
+    public static boolean supportSwitchCDMAFeature() {
+        //only dual simcards and china telecom + china unicom support this feature
+        if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return false;
+        }
+        boolean hasChinaTelecom = false;
+        boolean hasChinaUnicom = false;
+        List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
+                .getActiveSubscriptionInfoList();
+        if (null == list || list.isEmpty()) {
+            return false;
+        }
+        for (SubscriptionInfo subscriptionInfo : list) {
+            int subId = subscriptionInfo.getSubscriptionId();
+            Operator operator = Utils.toOperator(subscriptionInfo);
+            if (operator == Operator.CHINA_TELECOM) {
+                hasChinaTelecom = true;
+            } else if (operator == Operator.CHINA_UNICOM) {
+                hasChinaUnicom = true;
+            }
+        }
+        return hasChinaTelecom && hasChinaUnicom;
     }
 
 }

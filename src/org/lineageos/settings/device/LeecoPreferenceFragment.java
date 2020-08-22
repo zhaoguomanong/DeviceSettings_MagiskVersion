@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The LineageOS Project
+ * Copyright (C) 2020 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,10 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
     private static final String TAG = "LeecoPreferenceFragment";
     private static final String KEY_CAMHAL3_ENABLE = "key_camera_hal3_enable";
+    private static final String KEY_CDMA_ENABLE = "key_cdma_enable";
 
     private SwitchPreference mCamHal3Enable;
+    private SwitchPreference mCDMA;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,12 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         final PreferenceScreen prefSet = getPreferenceScreen();
         mCamHal3Enable = (SwitchPreference) findPreference(KEY_CAMHAL3_ENABLE);
         mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
+        mCDMA = findPreference(KEY_CDMA_ENABLE);
+        if (SettingsUtils.supportSwitchCDMAFeature()) {
+            mCDMA.setOnPreferenceChangeListener(mPrefListener);
+        } else {
+            prefSet.removePreference(mCDMA);
+        }
         Log.d(TAG, "onCreate: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
         mCamHal3Enable.setOnPreferenceChangeListener(mPrefListener);
         Log.d(TAG, "onCreate---");
@@ -76,6 +84,10 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 boolean enabled = (boolean) value;
                 SettingsUtils.writeCameraHAL3Prop(enabled);
                 Log.d(TAG, "onPreferenceChange: cam hal3 enable = " + enabled);
+            } else if (KEY_CDMA_ENABLE.equals(key)) {
+                boolean enabled = (boolean) value;
+                SettingsUtils.setCDMAEnable(enabled);
+                Log.d(TAG, "onPreferenceChange: CDMA enable = " + enabled);
             }
             return true;
         }

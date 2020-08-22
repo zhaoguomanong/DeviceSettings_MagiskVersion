@@ -17,5 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="camera_hal3_title">Camera HAL3</string>
     <string name="camera_hal3_summary">禁用HAL3将会启用HAL1. 切换HAL后请等待几秒再使用相机, 因为底层切换需要时间. 注意谷歌相机只能在HAL3下工作.</string>
+    <string name="cdma_title">电信2g/3g语音通话</string>
+    <string name="cdma_summary">开启电信2g/3g语音通话功能, 联通卡只能工作在2g(可能无服务); 关闭电信2g/3g语音通话, 电信卡工作在4g模式(如果运营商不支持VOLTE, 则只能上网不能通话和收发短信), 联通卡工作在3g/2g模式(3g优先).</string>
     <string name="core_permissions_lost">当前应用缺少必要权限，无法正常使用，请进入设置打开相应权限</string>
 </resources>

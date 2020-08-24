@@ -47,13 +47,13 @@ android {
         abortOnError false
 	}
     signingConfigs {
-
         aosp {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-            storeFile file('keystore.jks')
+            storeFile file('keystore_aosp_platform.jks')
             storePassword 'android'
         }
+
         nonaosp {
             keyAlias 'sign'
             keyPassword '123456'
@@ -68,7 +68,7 @@ android {
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
-            signingConfig signingConfigs.nonaosp
+            signingConfig signingConfigs.aosp
 
         }
 
@@ -77,7 +77,7 @@ android {
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
-            signingConfig signingConfigs.nonaosp
+            signingConfig signingConfigs.aosp
         }// release
     }// buildType end
 

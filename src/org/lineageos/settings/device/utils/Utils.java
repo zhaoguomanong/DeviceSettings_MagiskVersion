@@ -56,6 +56,9 @@ public class Utils {
                 "getEhplmns",
                 null,
                 null);
+        if (null == ehplmns) {
+            return Operator.OTHER;
+        }
         Operator operator = Operator.OTHER;
         for (String mns : ehplmns) {
             if (TextUtils.isEmpty(mns)) {

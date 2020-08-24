@@ -1,0 +1,4 @@
+if your rom is not signed aosp keys
+please use update.sh to install as system priv-app to get
+android.permission.WRITE_SECURE_SETTINGS
+android.permission.MODIFY_PHONE_STATE

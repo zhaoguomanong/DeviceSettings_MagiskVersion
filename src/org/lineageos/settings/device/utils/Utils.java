@@ -3,7 +3,11 @@ package org.lineageos.settings.device.utils;
 import android.content.Context;
 import android.os.Build;
 import android.telephony.SubscriptionInfo;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
+
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -18,62 +22,35 @@ public class Utils {
     public static final int NETWORK_MODE_GSM_ONLY = getGSMONLY();
 
     private static int getLTEONLY() {
-        Integer lteOnly = (Integer) ReflectionUtils.getStaticAttribute(
-                "android.telephony.TelephonyManager",
-                "NETWORK_MODE_LTE_ONLY");
-        if (null == lteOnly) {
-            return -100;
-        }
-        return lteOnly;
+        return 11;
     }
 
     private static int getGSMONLY() {
-        Integer gsmOnly = (Integer) ReflectionUtils.getStaticAttribute(
-                "android.telephony.TelephonyManager",
-                "NETWORK_MODE_GSM_ONLY");
-        if (null == gsmOnly) {
-            return -100;
-        }
-        return gsmOnly;
+        return 1;
     }
 
     private static int getGlobalMode() {
-        Integer globalMode = (Integer) ReflectionUtils.getStaticAttribute(
-                "android.telephony.TelephonyManager",
-                "NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA");
-        if (null == globalMode) {
-            return -100;
-        }
-        return globalMode;
+        return 10;
     }
 
     public static Operator toOperator(SubscriptionInfo subscriptionInfo) {
         if (null == subscriptionInfo) {
             return Operator.OTHER;
         }
-        List<String> ehplmns = (List<String>) ReflectionUtils.invokeMethod(
-                subscriptionInfo,
-                "getEhplmns",
-                null,
-                null);
-        if (null == ehplmns) {
+        String MCC_MNC = subscriptionInfo.getMcc()
+                + String.format("%02d", subscriptionInfo.getMnc());
+        if (TextUtils.isEmpty(MCC_MNC)) {
             return Operator.OTHER;
         }
-        Operator operator = Operator.OTHER;
-        for (String mns : ehplmns) {
-            if (TextUtils.isEmpty(mns)) {
-                continue;
-            }
-            if (mns.startsWith("46001")) {
-                operator = Operator.CHINA_UNICOM;
-                break;
-            } else if (mns.startsWith("46011")
-                    || mns.startsWith("46003")) {
-                operator = Operator.CHINA_TELECOM;
-                break;
-            }
+        switch (MCC_MNC) {
+            case "46011":
+            case "46003":
+                return Operator.CHINA_TELECOM;
+            case "46001":
+                return Operator.CHINA_UNICOM;
+            default:
+                return Operator.OTHER;
         }
-        return operator;
     }
 
 }

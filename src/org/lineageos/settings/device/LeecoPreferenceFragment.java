@@ -95,7 +95,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             } else if (KEY_CDMA_ENABLE.equals(key)) {
                 final boolean enabled = (boolean) value;
                 if (Utils.isSwitchingCDMA) {
-                    ToastUtils.showLimited("正在切换网络, 请稍候...");
+                    ToastUtils.showLimited(getString(R.string.net_switching_hint));
                     if (null != mCDMA) {
                         mCDMA.setChecked(!enabled);
                     }
@@ -113,12 +113,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                             MainApplication.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    ToastUtils.showLimited("切换失败, 缺少修改通话状态权限");
+                                    ToastUtils.showLimited(getString(R.string.net_switch_failed));
                                     if (null != mCDMA) {
                                         mCDMA.setChecked(!enabled);
                                     }
                                 }
                             });
+                            Log.e(TAG, "onPreferenceChange: set CDMA state failed, no permission");
                         }
                     }
                 });

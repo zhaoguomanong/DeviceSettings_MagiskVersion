@@ -22,7 +22,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 import android.util.Log;
-
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;

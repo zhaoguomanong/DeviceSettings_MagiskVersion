@@ -54,6 +54,12 @@ android {
             storeFile file('keystore.jks')
             storePassword 'android'
         }
+        nonaosp {
+            keyAlias 'sign'
+            keyPassword '123456'
+            storePassword '123456'
+            storeFile file('keystore_nonaosp.jks')
+        }
     }
     buildTypes {
         debug {
@@ -62,7 +68,7 @@ android {
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
-            signingConfig signingConfigs.aosp
+            signingConfig signingConfigs.nonaosp
 
         }
 
@@ -71,7 +77,7 @@ android {
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
-            signingConfig signingConfigs.aosp
+            signingConfig signingConfigs.nonaosp
         }// release
     }// buildType end
 

@@ -23,6 +23,8 @@ import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
+
+import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.Operator;
 import org.lineageos.settings.device.utils.RootCmd;
 import org.lineageos.settings.device.utils.SettingsProviderUtils;
@@ -60,7 +62,7 @@ public class SettingsUtils {
 
     }
 
-    public static void setCDMAEnable(boolean enable) {
+    public static void setCDMAEnable(boolean enable, final ISetPreferredNetworkResultListener listener) {
         Log.d(TAG, "setCDMAEnable: " + enable);
         if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
                 Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -97,14 +99,18 @@ public class SettingsUtils {
             @Override
             public void run() {
                 Utils.isSwitchingCDMA = true;
+                boolean result;
                 if (enable) {
-                    SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY);
-                    SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
+                    result = SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY)
+                            && SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
                 } else {
-                    SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GLOBAL);
-                    SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
+                    result = SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GLOBAL)
+                            && SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
                 }
                 Utils.isSwitchingCDMA = false;
+                if (null != listener) {
+                    listener.onCompleted(result);
+                }
             }
         });
 

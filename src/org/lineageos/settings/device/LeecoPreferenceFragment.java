@@ -23,6 +23,7 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 import android.util.Log;
 
+import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;
 
@@ -92,7 +93,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 SettingsUtils.writeCameraHAL3Prop(enabled);
                 Log.d(TAG, "onPreferenceChange: cam hal3 enable = " + enabled);
             } else if (KEY_CDMA_ENABLE.equals(key)) {
-                boolean enabled = (boolean) value;
+                final boolean enabled = (boolean) value;
                 if (Utils.isSwitchingCDMA) {
                     ToastUtils.showLimited("正在切换网络, 请稍候...");
                     if (null != mCDMA) {
@@ -105,7 +106,22 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     Log.e(TAG, "the state of cdma toggle is messed up, return");
                     return false;
                 }
-                SettingsUtils.setCDMAEnable(enabled);
+                SettingsUtils.setCDMAEnable(enabled, new ISetPreferredNetworkResultListener() {
+                    @Override
+                    public void onCompleted(boolean result) {
+                        if (!result) {
+                            MainApplication.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtils.showLimited("切换失败, 缺少修改通话状态权限");
+                                    if (null != mCDMA) {
+                                        mCDMA.setChecked(!enabled);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
                 Log.d(TAG, "onPreferenceChange: CDMA enable = " + enabled);
             }
             return true;

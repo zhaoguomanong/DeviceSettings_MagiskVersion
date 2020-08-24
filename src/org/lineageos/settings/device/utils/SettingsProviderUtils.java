@@ -76,7 +76,7 @@ public class SettingsProviderUtils {
         }
     }
 
-    public static void setPreferredNetwork(int subId, int network) {
+    public static boolean setPreferredNetwork(int subId, int network) {
         Log.d(TAG, "setPreferredNetwork: subId = " + subId + ", network = " + network);
 
         TelephonyManager telephonyManager = (TelephonyManager) Utils.applicationContext
@@ -87,6 +87,9 @@ public class SettingsProviderUtils {
                 "setPreferredNetworkType",
                 new Class[] {int.class, int.class},
                 new Object[] {subId, network});
+        if (null == result) {
+            result = false;
+        }
         if (result) {
             final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY =
                     (String) ReflectionUtils.getStaticAttribute(
@@ -100,8 +103,7 @@ public class SettingsProviderUtils {
         } else {
             Log.e(TAG, "setPreferredNetwork failed");
         }
-
-
+        return result;
     }
 
     public static int getPreferredNetwork(int subId) {

@@ -22,6 +22,6 @@
     <string name="cdma_title">CDMA</string>
     <string name="cdma_summary">Disabling CDMA for China Telecom will allow it only runs on LTE, and let another sim card(China Unicom) runs on WCDMA.</string>
     <string name="core_permissions_lost">Current app missing core permissions, go to settings to grant the permissions</string>
-    <string name="net_switching_hint">正在切换网络, 请稍候...</string>
-    <string name="net_switch_failed">切换失败, 缺少修改通话状态权限</string>
+    <string name="net_switching_hint">switching network, please wait ...</string>
+    <string name="net_switch_failed">switching failed, missing modify phone state permission</string>
 </resources>

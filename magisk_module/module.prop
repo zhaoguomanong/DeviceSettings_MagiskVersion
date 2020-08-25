@@ -1,7 +1,7 @@
 id=DeviceSettings_MagiskVersion
 name=DeviceSettings_MagiskVersion
-version=20200824.5
-versionCode=20200824
+version=20200825
+versionCode=20200825
 author=zhaoguomanong
 description=DeviceSettings_MagiskVersion
 support=https://github.com/zhaoguomanong/

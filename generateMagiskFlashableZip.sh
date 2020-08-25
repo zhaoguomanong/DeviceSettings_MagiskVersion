@@ -20,8 +20,10 @@ cp "$apkFile" "$moduleApkPath"
 
 source ${moduleRoot}/module.prop
 zipFileName="magisk-module-DeviceSettings_MagiskVersion-${version}.zip"
+outputPath="${PROJECTROOT}/build/outputs/magisk"
 [[ -f "$zipFileName" ]] && rm -f "$zipFileName"
+[[ ! -d "$outputPath" ]] && mkdir -p "$outputPath"
 
 cd ${moduleRoot}
-zip -r ${PROJECTROOT}/${zipFileName} *
+zip -r "$outputPath"/${zipFileName} *
 cd ${PROJECTROOT}

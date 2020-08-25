@@ -16,7 +16,7 @@ if [[ ! -d "$moduleApkPath" ]];then
     mkdir -p "$moduleApkPath"
 fi
 
-cp "$apkFile" ${moduleRoot}/system/priv-app/DeviceSettings_MagiskVersion/
+cp "$apkFile" "$moduleApkPath"
 
 source ${moduleRoot}/module.prop
 zipFileName="magisk-module-DeviceSettings_MagiskVersion-${version}.zip"

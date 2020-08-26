@@ -64,6 +64,11 @@ public class SettingsUtils {
 
     public static void setCDMAEnable(boolean enable, final ISetPreferredNetworkResultListener listener) {
         Log.d(TAG, "setCDMAEnable: " + enable);
+        boolean hasRoot = RootCmd.haveRoot();
+        if (!hasRoot) {
+            Log.e(TAG, "setCDMAEnable: no root");
+            return;
+        }
         if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
                 Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -101,11 +106,13 @@ public class SettingsUtils {
                 Utils.isSwitchingCDMA = true;
                 boolean result;
                 if (enable) {
-                    result = SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY)
-                            && SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
+                    result = SettingsProviderUtils.setPreferredNetwork(
+                            CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY,
+                            CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
                 } else {
-                    result = SettingsProviderUtils.setPreferredNetwork(CU_SUBID, Utils.NETWORK_MODE_GLOBAL)
-                            && SettingsProviderUtils.setPreferredNetwork(CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
+                    result = SettingsProviderUtils.setPreferredNetwork(
+                            CU_SUBID, Utils.NETWORK_MODE_GLOBAL,
+                            CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
                 }
                 Utils.isSwitchingCDMA = false;
                 if (null != listener) {

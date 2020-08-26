@@ -16,101 +16,38 @@ package org.lineageos.settings.device.utils;
  * limitations under the License.
  */
 
-import android.content.Context;
+
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class SettingsProviderUtils {
 
     private static String TAG = "SettingProviderUtils";
 
-    private static final boolean TETHERING_HW_ACCELERATION_ENABLE = false;
-    private static final int TETHERING_HW_ACCELERATION_SETTING_VALUE_ON = 0;
-    private static final int TETHERING_HW_ACCELERATION_SETTING_VALUE_OFF = 1;
+    private static final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY = "preferred_network_mode";
 
-    public static void overrideItems(Context context) {
-        overrideTetheringHardwareAcceleration(context);
-    }
+    private static long SWITCHING_NET_BLOCKING_TIME = 30 * 1000;
 
-    /*
-     * override Tethering Hardware Acceleration in Developer options
-     * enable Tethering Hardware Acceleration will make our leeco msm8996
-     * ipv6 tethering won't work
-     */
-    private static void overrideTetheringHardwareAcceleration(Context context) {
-        final String TETHERING_SETTING_GLOBAL_KEY =
-                (String) ReflectionUtils.getStaticAttribute(
-                        "android.provider.Settings$Global",
-                        "TETHER_OFFLOAD_DISABLED");
-        if (null == context
-                || TextUtils.isEmpty(TETHERING_SETTING_GLOBAL_KEY)) {
-            Log.e(TAG, "overrideTetheringHardwareAcceleration update failed");
-            return;
-        }
-        final int hwTetheringOldValue = Settings.Global.getInt(
-                context.getContentResolver(),
-                TETHERING_SETTING_GLOBAL_KEY,
-                -1);
-        final boolean hwTetheringEnabledOldValue =
-                hwTetheringOldValue == TETHERING_HW_ACCELERATION_SETTING_VALUE_ON;
-        boolean needUpdate = hwTetheringOldValue < 0
-                || (hwTetheringEnabledOldValue != TETHERING_HW_ACCELERATION_ENABLE);
-        if (needUpdate) {
-            try {
-                Settings.Global.putInt(context.getContentResolver(),
-                        TETHERING_SETTING_GLOBAL_KEY,
-                        TETHERING_HW_ACCELERATION_ENABLE
-                                ? TETHERING_HW_ACCELERATION_SETTING_VALUE_ON
-                                : TETHERING_HW_ACCELERATION_SETTING_VALUE_OFF);
-                Log.d(TAG, "overrideTetheringHardwareAcceleration --> "
-                        + TETHERING_HW_ACCELERATION_ENABLE);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e(TAG, "overrideTetheringHardwareAcceleration update failed, permission deny?");
-            }
+    public static boolean setPreferredNetwork(int subId1, int network1, int subId2, int network2) {
+        Log.d(TAG, "setPreferredNetwork: subId1 = " + subId1 + ", network1 = " + network1
+                + ", subId2 = " + subId2 + ", network2 = " + network2);
 
-        } else {
-            Log.d(TAG, "overrideTetheringHardwareAcceleration no need update");
-        }
-    }
-
-    public static boolean setPreferredNetwork(int subId, int network) {
-        Log.d(TAG, "setPreferredNetwork: subId = " + subId + ", network = " + network);
-
-        TelephonyManager telephonyManager = (TelephonyManager) Utils.applicationContext
-                .getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager = telephonyManager.createForSubscriptionId(subId);
-
-        Boolean result = (Boolean) ReflectionUtils.invokeMethod(telephonyManager,
-                "setPreferredNetworkType",
-                new Class[] {int.class, int.class},
-                new Object[] {subId, network});
-        if (null == result) {
-            result = false;
-        }
+        String cmd = "settings put global preferred_network_mode" + subId1 + " " + network1 + ";"
+                + "settings put global preferred_network_mode" + subId2 + " " + network2
+                + ";stop ril-daemon;start ril-daemon\n";
+        Log.d(TAG, "setPreferredNetwork: cmd = " + cmd);
+        boolean result = RootCmd.execRootCmd(cmd);
         if (result) {
-            final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY =
-                    (String) ReflectionUtils.getStaticAttribute(
-                            "android.provider.Settings$Global",
-                            "PREFERRED_NETWORK_MODE");
-
-            Settings.Global.putInt(Utils.applicationContext.getContentResolver(),
-                    PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY + subId,
-                    network);
-            Log.d(TAG, "setPreferredNetwork success");
-        } else {
-            Log.e(TAG, "setPreferredNetwork failed");
+            try {
+                Thread.sleep(SWITCHING_NET_BLOCKING_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }
 
     public static int getPreferredNetwork(int subId) {
-        final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY =
-                (String) ReflectionUtils.getStaticAttribute(
-                        "android.provider.Settings$Global",
-                        "PREFERRED_NETWORK_MODE");
         return Settings.Global.getInt(Utils.applicationContext.getContentResolver(),
                 PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY + subId,
                 Utils.NETWORK_MODE_GLOBAL);

@@ -23,7 +23,6 @@ import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
-
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.Operator;
 import org.lineageos.settings.device.utils.RootCmd;

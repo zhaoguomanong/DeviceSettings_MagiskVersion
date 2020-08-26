@@ -72,6 +72,7 @@ public class SettingsProviderUtils {
                         }
                     }
                     if (waitedSeconds > SWITCH_NET_BLOCKING_MAX_SECONDS) {
+                        Log.d(TAG, "setPreferredNetwork: wait timeout");
                         break;
                     }
                 }

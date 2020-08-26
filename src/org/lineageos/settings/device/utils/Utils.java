@@ -4,13 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.telephony.ServiceState;
 import android.telephony.SubscriptionInfo;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
-
-import java.util.Arrays;
-import java.util.List;
-
 
 public class Utils {
 
@@ -67,7 +61,6 @@ public class Utils {
 
         }
         return "STATE_UNKNOWN";
-
     }
 
 }

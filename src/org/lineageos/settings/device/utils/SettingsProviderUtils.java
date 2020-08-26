@@ -17,6 +17,7 @@ package org.lineageos.settings.device.utils;
  */
 
 
+import android.annotation.SuppressLint;
 import android.provider.Settings;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
@@ -29,33 +30,39 @@ public class SettingsProviderUtils {
     private static String TAG = "SettingProviderUtils";
 
     private static final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY = "preferred_network_mode";
-
     private static final int SWITCH_NET_BLOCKING_MAX_SECONDS = 60;
     private static final int ONE_SECOND = 1000;
 
     public static boolean setPreferredNetwork(int subIdCU, int networkCU, int subIdCT, int networkCT) {
         Log.d(TAG, "setPreferredNetwork: subIdCU = " + subIdCU + ", networkCU = " + networkCU
                 + ", subIdCT = " + subIdCT + ", networkCT = " + networkCT);
-
+        final TelephonyManager tm = (TelephonyManager) MainApplication.getInstance().getSystemService(TELEPHONY_SERVICE);
+        if (null == tm) {
+            return false;
+        }
+        final TelephonyManager tm1 = tm.createForSubscriptionId(subIdCU);
+        final TelephonyManager tm2 = tm.createForSubscriptionId(subIdCT);
+        if (null == tm1
+                || null == tm2) {
+            return false;
+        }
         String cmd = "settings put global preferred_network_mode" + subIdCU + " " + networkCU + ";"
                 + "settings put global preferred_network_mode" + subIdCT + " " + networkCT
                 + ";stop ril-daemon;start ril-daemon\n";
         Log.d(TAG, "setPreferredNetwork: cmd = " + cmd);
         boolean result = RootCmd.execRootCmd(cmd);
-        final TelephonyManager tm = (TelephonyManager) MainApplication.getInstance().getSystemService(TELEPHONY_SERVICE);
-        final TelephonyManager tm1 = tm.createForSubscriptionId(subIdCU);
-        final TelephonyManager tm2 = tm.createForSubscriptionId(subIdCT);
         final boolean enableCDMA = networkCT == Utils.NETWORK_MODE_GLOBAL;
-
         if (result) {
             try {
                 int waitedSeconds = 0;
                 while (true) {
                     Thread.sleep(ONE_SECOND);
                     waitedSeconds++;
+                    @SuppressLint("MissingPermission")
                     int simStateCU = tm1.getServiceState().getState();
+                    @SuppressLint("MissingPermission")
                     int simStateCT = tm2.getServiceState().getState();
-                    Log.d(TAG, "switching: simStateCU = " + Utils.serviceState2Str(simStateCU)
+                    Log.d(TAG, "switching network: simStateCU = " + Utils.serviceState2Str(simStateCU)
                             + ", simStateCT = " + Utils.serviceState2Str(simStateCT)
                             + ", enableCDMA = " + enableCDMA);
                     if (enableCDMA) {

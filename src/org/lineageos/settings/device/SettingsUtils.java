@@ -37,9 +37,23 @@ public class SettingsUtils {
 
     private static final String CAMERA_HAL3_ENABLE_PROPERTY = "persist.camera.HAL3.enabled";
 
-    public static void writeCameraHAL3Prop(boolean enable) {
-        SystemProperties.set(CAMERA_HAL3_ENABLE_PROPERTY, enable ? "1" : "0");
-        restartCameraServer();
+    public static void writeCameraHAL3Prop(final boolean enable) {
+        ThreadPoolUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                Utils.isSwitchingCamHal = true;
+                try {
+                    SystemProperties.set(CAMERA_HAL3_ENABLE_PROPERTY, enable ? "1" : "0");
+                    restartCameraServer();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Utils.isSwitchingCamHal = false;
+                }
+
+            }
+        });
+
     }
 
     public static boolean cameraHAL3Enable() {
@@ -57,65 +71,69 @@ public class SettingsUtils {
         boolean success = RootCmd.execRootCmd("stop vendor.camera-provider-2-4;"
                 + " start vendor.camera-provider-2-4\n");
         Log.d(TAG, "restartCameraServer: " + (success ? "success" : "failed"));
-
-
     }
 
     public static void setCDMAEnable(boolean enable, final ISetPreferredNetworkResultListener listener) {
-        Log.d(TAG, "setCDMAEnable: " + enable);
-        boolean hasRoot = RootCmd.haveRoot();
-        if (!hasRoot) {
-            Log.e(TAG, "setCDMAEnable: no root");
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext).getActiveSubscriptionInfoList();
-        int chinaTelecomSubId = -1;
-        int chinaUnicomSubId = -1;
-        for (SubscriptionInfo subscriptionInfo : list) {
-            int subId = subscriptionInfo.getSubscriptionId();
-            Operator operator = Utils.toOperator(subscriptionInfo);
-            if (operator == Operator.CHINA_TELECOM) {
-                chinaTelecomSubId = subId;
-            } else if (operator == Operator.CHINA_UNICOM) {
-                chinaUnicomSubId = subId;
-            }
-            Log.d(TAG, "subId = " + subId
-                    + ", operator = " + operator);
-        }
-        if (chinaTelecomSubId < 0
-                || chinaUnicomSubId < 0) {
-            Log.e(TAG, "find subId failed");
-        }
-        final int CT_SUBID = chinaTelecomSubId;
-        final int CU_SUBID = chinaUnicomSubId;
         ThreadPoolUtil.post(new Runnable() {
             @Override
             public void run() {
                 Utils.isSwitchingCDMA = true;
-                boolean result;
-                if (enable) {
-                    result = SettingsProviderUtils.setPreferredNetwork(
-                            CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY,
-                            CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
-                } else {
-                    result = SettingsProviderUtils.setPreferredNetwork(
-                            CU_SUBID, Utils.NETWORK_MODE_GLOBAL,
-                            CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
-                }
-                Utils.isSwitchingCDMA = false;
-                if (null != listener) {
-                    listener.onCompleted(result);
+                try {
+                    Log.d(TAG, "setCDMAEnable: " + enable);
+                    boolean hasRoot = RootCmd.haveRoot();
+                    if (!hasRoot) {
+                        Log.e(TAG, "setCDMAEnable: no root");
+                        return;
+                    }
+                    if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
+                            Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext).getActiveSubscriptionInfoList();
+                    int chinaTelecomSubId = -1;
+                    int chinaUnicomSubId = -1;
+                    for (SubscriptionInfo subscriptionInfo : list) {
+                        int subId = subscriptionInfo.getSubscriptionId();
+                        Operator operator = Utils.toOperator(subscriptionInfo);
+                        if (operator == Operator.CHINA_TELECOM) {
+                            chinaTelecomSubId = subId;
+                        } else if (operator == Operator.CHINA_UNICOM) {
+                            chinaUnicomSubId = subId;
+                        }
+                        Log.d(TAG, "subId = " + subId
+                                + ", operator = " + operator);
+                    }
+                    if (chinaTelecomSubId < 0
+                            || chinaUnicomSubId < 0) {
+                        Log.e(TAG, "find subId failed");
+                    }
+                    final int CT_SUBID = chinaTelecomSubId;
+                    final int CU_SUBID = chinaUnicomSubId;
+
+                    boolean result;
+                    if (enable) {
+                        result = SettingsProviderUtils.setPreferredNetwork(
+                                CU_SUBID, Utils.NETWORK_MODE_GSM_ONLY,
+                                CT_SUBID, Utils.NETWORK_MODE_GLOBAL);
+                    } else {
+                        result = SettingsProviderUtils.setPreferredNetwork(
+                                CU_SUBID, Utils.NETWORK_MODE_GLOBAL,
+                                CT_SUBID, Utils.NETWORK_MODE_LTE_ONLY);
+                    }
+                    if (null != listener) {
+                        listener.onCompleted(result);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Utils.isSwitchingCDMA = false;
                 }
             }
         });

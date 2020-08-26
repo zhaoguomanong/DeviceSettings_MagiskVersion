@@ -20,6 +20,7 @@
     <string name="cdma_title">电信2g/3g语音通话</string>
     <string name="cdma_summary">开启电信2g/3g语音通话功能, 联通卡只能工作在2g(可能无服务); 关闭电信2g/3g语音通话, 电信卡工作在4g模式(如果运营商不支持VOLTE, 则只能上网不能通话和收发短信), 联通卡工作在3g/2g模式(3g优先).</string>
     <string name="core_permissions_lost">当前应用缺少必要权限，无法正常使用，请进入设置打开相应权限</string>
+    <string name="cam_hal_switching_hint">正在切换Camera Hal, 请稍候...</string>
     <string name="net_switching_hint">正在切换网络, 请稍候...</string>
     <string name="net_switch_failed">切换失败, 缺少修改通话状态权限</string>
 </resources>

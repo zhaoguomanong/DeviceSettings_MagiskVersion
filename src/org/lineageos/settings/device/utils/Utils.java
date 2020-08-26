@@ -10,6 +10,7 @@ public class Utils {
 
     public static Context applicationContext;
     public static boolean isSwitchingCDMA = false;
+    public static boolean isSwitchingCamHal = false;
 
     public static final boolean AT_LEAST_Q = Build.VERSION.SDK_INT >= 29;
     public static final int NETWORK_MODE_LTE_ONLY = getLTEONLY();

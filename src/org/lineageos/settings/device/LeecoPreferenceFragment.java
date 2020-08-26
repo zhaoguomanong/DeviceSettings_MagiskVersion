@@ -89,6 +89,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
             if (KEY_CAMHAL3_ENABLE.equals(key)) {
                 boolean enabled = (boolean) value;
+                if (Utils.isSwitchingCamHal) {
+                    ToastUtils.showLimited(getString(R.string.cam_hal_switching_hint));
+                    if (null != mCamHal3Enable) {
+                        mCamHal3Enable.setChecked(!enabled);
+                    }
+                    return false;
+                }
                 SettingsUtils.writeCameraHAL3Prop(enabled);
                 Log.d(TAG, "onPreferenceChange: cam hal3 enable = " + enabled);
             } else if (KEY_CDMA_ENABLE.equals(key)) {

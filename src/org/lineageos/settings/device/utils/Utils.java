@@ -2,6 +2,7 @@ package org.lineageos.settings.device.utils;
 
 import android.content.Context;
 import android.os.Build;
+import android.telephony.ServiceState;
 import android.telephony.SubscriptionInfo;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -51,6 +52,22 @@ public class Utils {
             default:
                 return Operator.OTHER;
         }
+    }
+
+    public static String serviceState2Str(int state) {
+        switch (state) {
+            case ServiceState.STATE_EMERGENCY_ONLY:
+                return "STATE_EMERGENCY_ONLY";
+            case ServiceState.STATE_IN_SERVICE:
+                return "STATE_IN_SERVICE";
+            case ServiceState.STATE_OUT_OF_SERVICE:
+                return "STATE_OUT_OF_SERVICE";
+            case ServiceState.STATE_POWER_OFF:
+                return "STATE_POWER_OFF";
+
+        }
+        return "STATE_UNKNOWN";
+
     }
 
 }

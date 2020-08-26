@@ -18,7 +18,11 @@ package org.lineageos.settings.device.utils;
 
 
 import android.provider.Settings;
+import android.telephony.ServiceState;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import org.lineageos.settings.device.MainApplication;
+import static android.content.Context.TELEPHONY_SERVICE;
 
 public class SettingsProviderUtils {
 
@@ -26,20 +30,51 @@ public class SettingsProviderUtils {
 
     private static final String PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY = "preferred_network_mode";
 
-    private static long SWITCHING_NET_BLOCKING_TIME = 30 * 1000;
+    private static final int SWITCH_NET_BLOCKING_MAX_SECONDS = 60;
+    private static final int ONE_SECOND = 1000;
 
-    public static boolean setPreferredNetwork(int subId1, int network1, int subId2, int network2) {
-        Log.d(TAG, "setPreferredNetwork: subId1 = " + subId1 + ", network1 = " + network1
-                + ", subId2 = " + subId2 + ", network2 = " + network2);
+    public static boolean setPreferredNetwork(int subIdCU, int networkCU, int subIdCT, int networkCT) {
+        Log.d(TAG, "setPreferredNetwork: subIdCU = " + subIdCU + ", networkCU = " + networkCU
+                + ", subIdCT = " + subIdCT + ", networkCT = " + networkCT);
 
-        String cmd = "settings put global preferred_network_mode" + subId1 + " " + network1 + ";"
-                + "settings put global preferred_network_mode" + subId2 + " " + network2
+        String cmd = "settings put global preferred_network_mode" + subIdCU + " " + networkCU + ";"
+                + "settings put global preferred_network_mode" + subIdCT + " " + networkCT
                 + ";stop ril-daemon;start ril-daemon\n";
         Log.d(TAG, "setPreferredNetwork: cmd = " + cmd);
         boolean result = RootCmd.execRootCmd(cmd);
+        final TelephonyManager tm = (TelephonyManager) MainApplication.getInstance().getSystemService(TELEPHONY_SERVICE);
+        final TelephonyManager tm1 = tm.createForSubscriptionId(subIdCU);
+        final TelephonyManager tm2 = tm.createForSubscriptionId(subIdCT);
+        final boolean enableCDMA = networkCT == Utils.NETWORK_MODE_GLOBAL;
+
         if (result) {
             try {
-                Thread.sleep(SWITCHING_NET_BLOCKING_TIME);
+                int waitedSeconds = 0;
+                while (true) {
+                    Thread.sleep(ONE_SECOND);
+                    waitedSeconds++;
+                    int simStateCU = tm1.getServiceState().getState();
+                    int simStateCT = tm2.getServiceState().getState();
+                    Log.d(TAG, "switching: simStateCU = " + Utils.serviceState2Str(simStateCU)
+                            + ", simStateCT = " + Utils.serviceState2Str(simStateCT)
+                            + ", enableCDMA = " + enableCDMA);
+                    if (enableCDMA) {
+                        if (simStateCU == ServiceState.STATE_OUT_OF_SERVICE
+                                && simStateCT == ServiceState.STATE_IN_SERVICE) {
+                            Log.d(TAG, "enableCDMA: switch done");
+                            break;
+                        }
+                    } else {
+                        if (simStateCU == ServiceState.STATE_IN_SERVICE
+                                && simStateCT == ServiceState.STATE_OUT_OF_SERVICE) {
+                            Log.d(TAG, "disableCDMA switch done");
+                            break;
+                        }
+                    }
+                    if (waitedSeconds > SWITCH_NET_BLOCKING_MAX_SECONDS) {
+                        break;
+                    }
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

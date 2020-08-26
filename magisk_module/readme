@@ -1,0 +1,7 @@
+This module is deprecated.
+
+Now, We use shell command to modify phone state and set settings provider,
+so we don't need below permissions anymore.
+
+android.permission.WRITE_SECURE_SETTINGS
+android.permission.MODIFY_PHONE_STATE

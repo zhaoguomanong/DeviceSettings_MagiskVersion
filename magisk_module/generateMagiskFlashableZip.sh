@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd `dirname $0`
+cd ..
 PROJECTROOT=`pwd`
 moduleRoot=${PROJECTROOT}/magisk_module
 

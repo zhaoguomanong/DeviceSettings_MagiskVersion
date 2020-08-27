@@ -16,13 +16,11 @@
 
 package org.lineageos.settings.device;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.annotation.SuppressLint;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
-import androidx.core.app.ActivityCompat;
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.Operator;
 import org.lineageos.settings.device.utils.RootCmd;
@@ -85,17 +83,7 @@ public class SettingsUtils {
                         Log.e(TAG, "setCDMAEnable: no root");
                         return;
                     }
-                    if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
-                            Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
+                    @SuppressLint("MissingPermission")
                     List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext).getActiveSubscriptionInfoList();
                     int chinaTelecomSubId = -1;
                     int chinaUnicomSubId = -1;
@@ -142,19 +130,9 @@ public class SettingsUtils {
 
     public static boolean supportSwitchCDMAFeature() {
         //only dual simcards and china telecom + china unicom support this feature
-        if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return false;
-        }
         boolean hasChinaTelecom = false;
         boolean hasChinaUnicom = false;
+        @SuppressLint("MissingPermission")
         List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
                 .getActiveSubscriptionInfoList();
         if (null == list || list.isEmpty()) {
@@ -173,17 +151,7 @@ public class SettingsUtils {
     }
 
     public static boolean isCDMAEnabled() {
-        if (ActivityCompat.checkSelfPermission(Utils.applicationContext,
-                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return false;
-        }
+        @SuppressLint("MissingPermission")
         List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
                 .getActiveSubscriptionInfoList();
         if (null == list || list.isEmpty()) {

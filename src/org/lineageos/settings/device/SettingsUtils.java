@@ -30,6 +30,7 @@ import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.Utils;
 import java.util.List;
 
+@SuppressLint("MissingPermission")
 public class SettingsUtils {
     public static final String TAG = "SettingsUtils";
 
@@ -83,7 +84,6 @@ public class SettingsUtils {
                         Log.e(TAG, "setCDMAEnable: no root");
                         return;
                     }
-                    @SuppressLint("MissingPermission")
                     List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext).getActiveSubscriptionInfoList();
                     int chinaTelecomSubId = -1;
                     int chinaUnicomSubId = -1;
@@ -132,7 +132,7 @@ public class SettingsUtils {
         //only dual simcards and china telecom + china unicom support this feature
         boolean hasChinaTelecom = false;
         boolean hasChinaUnicom = false;
-        @SuppressLint("MissingPermission")
+
         List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
                 .getActiveSubscriptionInfoList();
         if (null == list || list.isEmpty()) {
@@ -151,7 +151,6 @@ public class SettingsUtils {
     }
 
     public static boolean isCDMAEnabled() {
-        @SuppressLint("MissingPermission")
         List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
                 .getActiveSubscriptionInfoList();
         if (null == list || list.isEmpty()) {

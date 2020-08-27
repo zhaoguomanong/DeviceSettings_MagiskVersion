@@ -25,6 +25,7 @@ import android.util.Log;
 import org.lineageos.settings.device.MainApplication;
 import static android.content.Context.TELEPHONY_SERVICE;
 
+@SuppressLint("MissingPermission")
 public class SettingsProviderUtils {
 
     private static String TAG = "SettingProviderUtils";
@@ -58,9 +59,7 @@ public class SettingsProviderUtils {
                 while (true) {
                     Thread.sleep(ONE_SECOND);
                     waitedSeconds++;
-                    @SuppressLint("MissingPermission")
                     int simStateCU = tm1.getServiceState().getState();
-                    @SuppressLint("MissingPermission")
                     int simStateCT = tm2.getServiceState().getState();
                     Log.d(TAG, "switching network: simStateCU = " + Utils.serviceState2Str(simStateCU)
                             + ", simStateCT = " + Utils.serviceState2Str(simStateCT)

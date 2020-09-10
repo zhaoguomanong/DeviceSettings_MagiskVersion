@@ -101,6 +101,7 @@ public class SettingsUtils {
                     if (chinaTelecomSubId < 0
                             || chinaUnicomSubId < 0) {
                         Log.e(TAG, "find subId failed");
+                        return;
                     }
                     final int CT_SUBID = chinaTelecomSubId;
                     final int CU_SUBID = chinaUnicomSubId;

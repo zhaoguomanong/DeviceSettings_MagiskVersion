@@ -23,4 +23,7 @@
     <string name="cam_hal_switching_hint">正在切换Camera Hal, 请稍候...</string>
     <string name="net_switching_hint">正在切换网络, 请稍候...</string>
     <string name="net_switch_failed">切换失败, 缺少修改通话状态权限</string>
+
+    <string name="http_proxy_title">Http Proxy</string>
+    <string name="http_proxy_summary">开启关闭系统http代理 (127.0.0.1:10809)</string>
 </resources>

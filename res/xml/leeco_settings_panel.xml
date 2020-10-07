@@ -28,4 +28,10 @@
         android:title="@string/cdma_title"
         android:summary="@string/cdma_summary" />
 
+    <androidx.preference.SwitchPreference
+        android:key="key_http_proxy_enable"
+        android:defaultValue="false"
+        android:title="@string/http_proxy_title"
+        android:summary="@string/http_proxy_summary" />
+
 </androidx.preference.PreferenceScreen>

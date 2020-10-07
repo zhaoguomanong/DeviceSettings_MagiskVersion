@@ -25,4 +25,7 @@
     <string name="cam_hal_switching_hint">switching camera hal, please wait ...</string>
     <string name="net_switching_hint">switching network, please wait ...</string>
     <string name="net_switch_failed">switching failed, missing modify phone state permission</string>
+
+    <string name="http_proxy_title">Http Proxy</string>
+    <string name="http_proxy_summary">Enable or Disable system http proxy (127.0.0.1:10809)</string>
 </resources>

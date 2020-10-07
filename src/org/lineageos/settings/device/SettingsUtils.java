@@ -35,6 +35,8 @@ public class SettingsUtils {
     public static final String TAG = "SettingsUtils";
 
     private static final String CAMERA_HAL3_ENABLE_PROPERTY = "persist.camera.HAL3.enabled";
+    private static final String HTTP_PROXY_ADDRESS_ENABLED = "127.0.0.1:10809";
+    private static final String HTTP_PROXY_ADDRESS_DISABLED = ":0";
 
     public static void writeCameraHAL3Prop(final boolean enable) {
         ThreadPoolUtil.post(new Runnable() {
@@ -180,6 +182,18 @@ public class SettingsUtils {
         return cUPrefNet == Utils.NETWORK_MODE_GSM_ONLY
                 && cTPrefNet == Utils.NETWORK_MODE_GLOBAL;
 
+    }
+
+    public static void setHttpProxyEnable(boolean enable) {
+        String cmd = "settings put global http_proxy "
+                + (enable ? HTTP_PROXY_ADDRESS_ENABLED : HTTP_PROXY_ADDRESS_DISABLED) + "\n";
+        RootCmd.execRootCmd(cmd);
+    }
+
+    public static boolean isHttpProxyEnabled() {
+        String cmd = "settings get global http_proxy";
+        String result = RootCmd.execRootCmdWithResults(cmd);
+        return TextUtils.equals(result, HTTP_PROXY_ADDRESS_ENABLED);
     }
 
 }

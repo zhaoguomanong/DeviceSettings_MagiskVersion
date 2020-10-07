@@ -31,9 +31,11 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private static final String TAG = "LeecoPreferenceFragment";
     private static final String KEY_CAMHAL3_ENABLE = "key_camera_hal3_enable";
     private static final String KEY_CDMA_ENABLE = "key_cdma_enable";
+    private static final String KEY_HTTP_PROXY_ENABLE = "key_http_proxy_enable";
 
     private SwitchPreference mCamHal3Enable;
     private SwitchPreference mCDMA;
+    private SwitchPreference mHttpProxy;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,8 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         mCamHal3Enable = (SwitchPreference) findPreference(KEY_CAMHAL3_ENABLE);
         mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
         mCDMA = findPreference(KEY_CDMA_ENABLE);
+        mHttpProxy = findPreference(KEY_HTTP_PROXY_ENABLE);
+        mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
         if (SettingsUtils.supportSwitchCDMAFeature()) {
             mCDMA.setOnPreferenceChangeListener(mPrefListener);
         } else {
@@ -77,6 +81,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         }
         if (null != mCDMA) {
             mCDMA.setChecked(SettingsUtils.isCDMAEnabled());
+        }
+        if (null != mHttpProxy) {
+            mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
         }
         Log.d(TAG, "onResume---");
     }
@@ -130,6 +137,10 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     }
                 });
                 Log.d(TAG, "onPreferenceChange: CDMA enable = " + enabled);
+            } else if (KEY_HTTP_PROXY_ENABLE.equals(key)) {
+                boolean enabled = (boolean) value;
+                SettingsUtils.setHttpProxyEnable(enabled);
+
             }
             return true;
         }

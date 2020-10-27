@@ -44,7 +44,14 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         Log.d(TAG, "onCreate+++");
         final PreferenceScreen prefSet = getPreferenceScreen();
         mCamHal3Enable = (SwitchPreference) findPreference(KEY_CAMHAL3_ENABLE);
-        mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
+        if (SettingsUtils.supportCamHal3Toggle()) {
+            mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
+            Log.d(TAG, "onCreate: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
+            mCamHal3Enable.setOnPreferenceChangeListener(mPrefListener);
+        } else {
+            prefSet.removePreference(mCamHal3Enable);
+            mCamHal3Enable = null;
+        }
         mCDMA = findPreference(KEY_CDMA_ENABLE);
         mHttpProxy = findPreference(KEY_HTTP_PROXY_ENABLE);
         mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
@@ -54,8 +61,6 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             prefSet.removePreference(mCDMA);
             mCDMA = null;
         }
-        Log.d(TAG, "onCreate: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
-        mCamHal3Enable.setOnPreferenceChangeListener(mPrefListener);
         Log.d(TAG, "onCreate---");
     }
 
@@ -75,7 +80,8 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         super.onResume();
         Log.d(TAG, "onResume+++");
         getListView().setPadding(0, 0, 0, 0);
-        if (null != mCamHal3Enable) {
+        if (SettingsUtils.supportCamHal3Toggle()
+                && null != mCamHal3Enable) {
             mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
             Log.d(TAG, "onResume: cam hal3 enable = " + SettingsUtils.cameraHAL3Enable());
         }

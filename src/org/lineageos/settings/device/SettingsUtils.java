@@ -17,11 +17,13 @@
 package org.lineageos.settings.device;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
+import org.lineageos.settings.device.utils.MobileDevice;
 import org.lineageos.settings.device.utils.Operator;
 import org.lineageos.settings.device.utils.RootCmd;
 import org.lineageos.settings.device.utils.SettingsProviderUtils;
@@ -61,6 +63,21 @@ public class SettingsUtils {
         String enable = SystemProperties.get(CAMERA_HAL3_ENABLE_PROPERTY, "1");
         return TextUtils.equals("1", enable);
     }
+
+    public static boolean supportCamHal3Toggle() {
+        return isLeEcoCustomROM();
+    }
+
+    public static boolean isLeEcoCustomROM() {
+        switch (MobileDevice.CurrentDevice) {
+            case X2:
+            case S2:
+            case ZL1:
+                return Build.VERSION.SDK_INT > Build.VERSION_CODES.M;
+        }
+        return false;
+    }
+
 
     public static void restartCameraServer() {
         boolean hasRoot = RootCmd.haveRoot();
@@ -132,6 +149,9 @@ public class SettingsUtils {
     }
 
     public static boolean supportSwitchCDMAFeature() {
+        if (!isLeEcoCustomROM()) {
+            return false;
+        }
         //only dual simcards and china telecom + china unicom support this feature
         boolean hasChinaTelecom = false;
         boolean hasChinaUnicom = false;

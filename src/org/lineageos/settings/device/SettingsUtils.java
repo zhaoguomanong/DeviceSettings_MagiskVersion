@@ -37,7 +37,9 @@ public class SettingsUtils {
     public static final String TAG = "SettingsUtils";
 
     private static final String CAMERA_HAL3_ENABLE_PROPERTY = "persist.camera.HAL3.enabled";
-    private static final String HTTP_PROXY_ADDRESS_ENABLED = "127.0.0.1:10807";
+    public static final String HTTP_PROXY_PORT
+            = MainApplication.getInstance().getString(R.string.http_proxy_port);
+    private static final String HTTP_PROXY_ADDRESS_ENABLED = "127.0.0.1:" + HTTP_PROXY_PORT;
     private static final String HTTP_PROXY_ADDRESS_DISABLED = ":0";
 
     public static void writeCameraHAL3Prop(final boolean enable) {

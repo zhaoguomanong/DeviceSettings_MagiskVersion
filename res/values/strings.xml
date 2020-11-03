@@ -27,5 +27,6 @@
     <string name="net_switch_failed">switching failed, missing modify phone state permission</string>
 
     <string name="http_proxy_title">Http Proxy</string>
-    <string name="http_proxy_summary">Enable or Disable system http proxy (127.0.0.1:10807)</string>
+    <string name="http_proxy_summary">Enable or Disable system http proxy (127.0.0.1:%s)</string>
+    <string name="http_proxy_port" translatable="false">10809</string>
 </resources>

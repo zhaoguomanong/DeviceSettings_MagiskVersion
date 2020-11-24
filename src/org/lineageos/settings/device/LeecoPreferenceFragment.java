@@ -21,8 +21,11 @@ import androidx.preference.PreferenceFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
+
+import android.text.TextUtils;
 import android.util.Log;
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
+import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;
 
@@ -95,6 +98,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         if (null != mHttpProxy) {
             mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
         }
+        getPublicIp();
         Log.d(TAG, "onResume---");
     }
 
@@ -155,4 +159,28 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             return true;
         }
     };
+
+    private void getPublicIp() {
+        ThreadPoolUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                final String ip = Utils.getPublicIp();
+                if (TextUtils.isEmpty(ip)) {
+                    Log.d(TAG, "get ip failed");
+                    return;
+                }
+                MainApplication.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        String originalTitle = getString(R.string.device_settings_app_name);
+                        String newTitle = originalTitle + "  [" + ip + "]";
+                        Log.d(TAG, "set title to " + newTitle);
+                        getActivity().setTitle(newTitle);
+                    }
+                });
+
+            }
+        });
+
+    }
 }

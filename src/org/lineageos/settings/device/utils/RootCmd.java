@@ -1,5 +1,6 @@
 package org.lineageos.settings.device.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -97,6 +98,9 @@ public class RootCmd {
             String line = null;
             while ((line = dis.readLine()) != null) {
                 Log.d("result", line);
+                if (!TextUtils.isEmpty(result)) {
+                    result += "\n";
+                }
                 result += line;
             }
             p.waitFor();

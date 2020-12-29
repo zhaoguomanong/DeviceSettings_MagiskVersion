@@ -115,7 +115,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             ZJLUtils.queryZJLStatus(new ZJLUtils.IZJLStatusListener() {
                 @Override
                 public void onResult(String str, boolean enabled) {
-                    Log.d(TAG, "queryZJLStatus: str = " + str + ", enabled = " + enabled);
+                    Log.d(TAG, "queryZJLStatus: str = \n" + str + "\nenabled = " + enabled);
                     if (mPaused) {
                         return;
                     }
@@ -201,7 +201,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     ZJLUtils.enableZJL(new ZJLUtils.IEnableZJLCallback() {
                         @Override
                         public void onResult(String str, boolean success) {
-                            Log.d(TAG, "enableZJL: str = " + str + ", success = " + success);
+                            Log.d(TAG, "enableZJL: str = \n" + str + "\nsuccess = " + success);
                             if (mPaused) {
                                 return;
                             }
@@ -221,7 +221,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     ZJLUtils.disableZJL(new ZJLUtils.IDisableZJLCallback() {
                         @Override
                         public void onResult(String str, boolean success) {
-                            Log.d(TAG, "disableZJL: str = " + str + ", success = " + success);
+                            Log.d(TAG, "disableZJL: str = \n" + str + "\nsuccess = " + success);
                             if (mPaused) {
                                 return;
                             }

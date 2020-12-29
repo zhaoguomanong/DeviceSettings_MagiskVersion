@@ -33,7 +33,7 @@ android {
         minSdkVersion 27
         targetSdkVersion 29
         versionCode 20201229
-        versionName "20201229.1"
+        versionName "20201229.2"
     }
 
     externalNativeBuild {

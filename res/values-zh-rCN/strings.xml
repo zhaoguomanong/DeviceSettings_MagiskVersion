@@ -26,4 +26,8 @@
 
     <string name="http_proxy_title">Http Proxy</string>
     <string name="http_proxy_summary">开启关闭系统http代理 (127.0.0.1:%s)</string>
+
+    <string name="zjl_title">百度直连</string>
+    <string name="zjl_summary">一键开启关闭Magisk百度直连模块</string>
+
 </resources>

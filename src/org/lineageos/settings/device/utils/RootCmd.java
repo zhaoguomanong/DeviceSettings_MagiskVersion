@@ -1,9 +1,15 @@
 package org.lineageos.settings.device.utils;
 
 import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 public class RootCmd {
 
@@ -75,19 +81,18 @@ public class RootCmd {
 
     public static String execRootCmdWithResults(String cmd) {
         String result = "";
-        DataOutputStream dos = null;
-        DataInputStream dis = null;
+        BufferedWriter dos = null;
+        BufferedReader dis = null;
         boolean success = true;
 
         try {
             Process p = Runtime.getRuntime().exec("su");// 经过Root处理的android系统即有su命令
-            dos = new DataOutputStream(p.getOutputStream());
-            dis = new DataInputStream(p.getInputStream());
-
+            dos = new BufferedWriter(new OutputStreamWriter(p.getOutputStream(), Charset.forName("UTF-8")));
+            dis = new BufferedReader(new InputStreamReader(p.getInputStream(), Charset.forName("UTF-8")));
             Log.i(TAG, cmd);
-            dos.writeBytes(cmd + "\n");
+            dos.write(cmd + "\n");
             dos.flush();
-            dos.writeBytes("exit\n");
+            dos.write("exit\n");
             dos.flush();
             String line = null;
             while ((line = dis.readLine()) != null) {

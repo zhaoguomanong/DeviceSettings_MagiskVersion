@@ -29,4 +29,7 @@
     <string name="http_proxy_title">Http Proxy</string>
     <string name="http_proxy_summary">Enable or Disable system http proxy (127.0.0.1:%s)</string>
     <string name="http_proxy_port" translatable="false">10809</string>
+
+    <string name="zjl_title">ZJL</string>
+    <string name="zjl_summary">Enable or Disable magisk ZJL Module without reboot phone</string>
 </resources>

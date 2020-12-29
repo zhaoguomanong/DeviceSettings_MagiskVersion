@@ -28,6 +28,7 @@ import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;
+import org.lineageos.settings.device.utils.ZJLUtils;
 
 import static org.lineageos.settings.device.SettingsUtils.HTTP_PROXY_PORT;
 
@@ -37,10 +38,14 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private static final String KEY_CAMHAL3_ENABLE = "key_camera_hal3_enable";
     private static final String KEY_CDMA_ENABLE = "key_cdma_enable";
     private static final String KEY_HTTP_PROXY_ENABLE = "key_http_proxy_enable";
+    private static final String KEY_ZJL_ENABLE = "key_zjl_enable";
 
     private SwitchPreference mCamHal3Enable;
     private SwitchPreference mCDMA;
     private SwitchPreference mHttpProxy;
+    private SwitchPreference mZJL;
+
+    private boolean mPaused = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +73,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             prefSet.removePreference(mCDMA);
             mCDMA = null;
         }
+        mZJL = findPreference(KEY_ZJL_ENABLE);
+        if (ZJLUtils.ZJL_SUPPORTED) {
+            mZJL.setOnPreferenceChangeListener(mPrefListener);
+        } else {
+            prefSet.removePreference(mZJL);
+            mZJL = null;
+        }
         Log.d(TAG, "onCreate---");
     }
 
@@ -85,6 +97,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
+        mPaused = false;
         Log.d(TAG, "onResume+++");
         getListView().setPadding(0, 0, 0, 0);
         if (SettingsUtils.supportCamHal3Toggle()
@@ -98,8 +111,31 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         if (null != mHttpProxy) {
             mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
         }
+        if (ZJLUtils.ZJL_SUPPORTED) {
+            ZJLUtils.queryZJLStatus(new ZJLUtils.IZJLStatusListener() {
+                @Override
+                public void onResult(String str, boolean enabled) {
+                    Log.d(TAG, "queryZJLStatus: str = " + str + ", enabled = " + enabled);
+                    if (mPaused) {
+                        return;
+                    }
+                    if (null != mZJL) {
+                        boolean isChecked = mZJL.isChecked();
+                        if (isChecked != enabled) {
+                            mZJL.setChecked(enabled);
+                        }
+                    }
+                }
+            });
+        }
         getPublicIp();
         Log.d(TAG, "onResume---");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPaused = true;
     }
 
     private Preference.OnPreferenceChangeListener mPrefListener =
@@ -140,6 +176,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                             MainApplication.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (mPaused) {
+                                        return;
+                                    }
                                     ToastUtils.showLimited(getString(R.string.net_switch_failed));
                                     if (null != mCDMA) {
                                         mCDMA.setChecked(!enabled);
@@ -155,6 +194,49 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 boolean enabled = (boolean) value;
                 SettingsUtils.setHttpProxyEnable(enabled);
 
+            } else if (KEY_ZJL_ENABLE.equals(key)) {
+                boolean enabled = (boolean) value;
+
+                if (enabled) {
+                    ZJLUtils.enableZJL(new ZJLUtils.IEnableZJLCallback() {
+                        @Override
+                        public void onResult(String str, boolean success) {
+                            Log.d(TAG, "enableZJL: str = " + str + ", success = " + success);
+                            if (mPaused) {
+                                return;
+                            }
+                            ToastUtils.show("enable ZJL "
+                                    + (success ? "success" : "failed"));
+                            if (!success) {
+                                if (null != mZJL) {
+                                    mZJL.setChecked(false);
+                                }
+                            } else {
+                                getPublicIp();
+                            }
+
+                        }
+                    });
+                } else {
+                    ZJLUtils.disableZJL(new ZJLUtils.IDisableZJLCallback() {
+                        @Override
+                        public void onResult(String str, boolean success) {
+                            Log.d(TAG, "disableZJL: str = " + str + ", success = " + success);
+                            if (mPaused) {
+                                return;
+                            }
+                            ToastUtils.show("disable ZJL "
+                                    + (success ? "success" : "failed"));
+                            if (!success) {
+                                if (null != mZJL) {
+                                    mZJL.setChecked(false);
+                                }
+                            } else {
+                                getPublicIp();
+                            }
+                        }
+                    });
+                }
             }
             return true;
         }
@@ -172,6 +254,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 MainApplication.post(new Runnable() {
                     @Override
                     public void run() {
+                        if (mPaused) {
+                            return;
+                        }
                         String originalTitle = getString(R.string.device_settings_app_name);
                         String newTitle = originalTitle + "  [" + ip + "]";
                         Log.d(TAG, "set title to " + newTitle);

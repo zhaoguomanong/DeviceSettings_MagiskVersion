@@ -34,4 +34,10 @@
         android:title="@string/http_proxy_title"
         android:summary="@string/http_proxy_summary" />
 
+    <androidx.preference.SwitchPreference
+        android:key="key_zjl_enable"
+        android:defaultValue="false"
+        android:title="@string/zjl_title"
+        android:summary="@string/zjl_summary" />
+
 </androidx.preference.PreferenceScreen>

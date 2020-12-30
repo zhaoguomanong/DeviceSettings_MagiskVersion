@@ -46,6 +46,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private SwitchPreference mZJL;
 
     private boolean mPaused = true;
+    private String mCurrentPublicIp = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,23 +113,32 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
         }
         if (ZJLUtils.ZJL_SUPPORTED) {
-            ZJLUtils.queryZJLStatus(new ZJLUtils.IZJLCallback() {
-                @Override
-                public void onResult(String str, boolean enabled) {
-                    Log.d(TAG, "queryZJLStatus: str = \n" + str + "\nenabled = " + enabled);
-                    if (mPaused) {
-                        return;
-                    }
-                    if (null != mZJL) {
-                        boolean isChecked = mZJL.isChecked();
-                        if (isChecked != enabled) {
-                            mZJL.setChecked(enabled);
+            if (ZJLUtils.isSwitchingZJL) {
+                Log.e(TAG, "switching ZJL, no need ZJL query result");
+            } else {
+                ZJLUtils.queryZJLStatus(new ZJLUtils.IZJLCallback() {
+                    @Override
+                    public void onResult(String str, boolean enabled) {
+                        Log.d(TAG, "queryZJLStatus: str = \n" + str + "\nenabled = " + enabled);
+                        if (mPaused) {
+                            return;
+                        }
+                        if (ZJLUtils.isSwitchingZJL) {
+                            Log.e(TAG, "switching ZJL, abandon ZJL query result");
+                            return;
+                        }
+                        if (null != mZJL) {
+                            boolean isChecked = mZJL.isChecked();
+                            if (isChecked != enabled) {
+                                mZJL.setChecked(enabled);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+
         }
-        getPublicIp();
+        getPublicIp(false);
         Log.d(TAG, "onResume---");
     }
 
@@ -204,6 +214,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     Log.e(TAG, "switching zjl return");
                     return false;
                 }
+                getActivity().setTitle(getString(R.string.device_settings_app_name));
                 ZJLUtils.enableZJL(new ZJLUtils.IZJLCallback() {
                     @Override
                     public void onResult(String status, boolean success) {
@@ -229,7 +240,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                                 mZJL.setChecked(!enabled);
                             }
                         } else {
-                            getPublicIp();
+                            getPublicIp(true);
                         }
 
                     }
@@ -239,11 +250,24 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         }
     };
 
-    private void getPublicIp() {
+    private void getPublicIp(final boolean triggeredBySwitchingZJL) {
         ThreadPoolUtil.post(new Runnable() {
             @Override
             public void run() {
                 final String ip = Utils.getPublicIp();
+                if (triggeredBySwitchingZJL
+                        && TextUtils.equals(mCurrentPublicIp, ip)
+                        && !mPaused) {
+                    Log.e(TAG, "triggered by switching ZJL, ip not changed, post delay msg, mCurrentPublicIp = "
+                            + mCurrentPublicIp + ", ip = " + ip);
+                    MainApplication.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            getPublicIp(true);
+                        }
+                    }, 1000);
+                    return;
+                }
                 if (TextUtils.isEmpty(ip)) {
                     Log.d(TAG, "get ip failed");
                     return;
@@ -258,6 +282,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                         String newTitle = originalTitle + "  [" + ip + "]";
                         Log.d(TAG, "set title to " + newTitle);
                         getActivity().setTitle(newTitle);
+                        mCurrentPublicIp = ip;
                     }
                 });
 

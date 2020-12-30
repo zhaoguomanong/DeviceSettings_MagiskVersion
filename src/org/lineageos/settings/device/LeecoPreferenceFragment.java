@@ -112,7 +112,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
         }
         if (ZJLUtils.ZJL_SUPPORTED) {
-            ZJLUtils.queryZJLStatus(new ZJLUtils.IZJLStatusListener() {
+            ZJLUtils.queryZJLStatus(new ZJLUtils.IZJLCallback() {
                 @Override
                 public void onResult(String str, boolean enabled) {
                     Log.d(TAG, "queryZJLStatus: str = \n" + str + "\nenabled = " + enabled);
@@ -196,47 +196,34 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
             } else if (KEY_ZJL_ENABLE.equals(key)) {
                 boolean enabled = (boolean) value;
-
-                if (enabled) {
-                    ZJLUtils.enableZJL(new ZJLUtils.IEnableZJLCallback() {
-                        @Override
-                        public void onResult(String str, boolean success) {
-                            Log.d(TAG, "enableZJL: str = \n" + str + "\nsuccess = " + success);
-                            if (mPaused) {
-                                return;
-                            }
-                            ToastUtils.show("enable ZJL "
-                                    + (success ? "success" : "failed"));
-                            if (!success) {
-                                if (null != mZJL) {
-                                    mZJL.setChecked(false);
-                                }
-                            } else {
-                                getPublicIp();
-                            }
-
-                        }
-                    });
-                } else {
-                    ZJLUtils.disableZJL(new ZJLUtils.IDisableZJLCallback() {
-                        @Override
-                        public void onResult(String str, boolean success) {
-                            Log.d(TAG, "disableZJL: str = \n" + str + "\nsuccess = " + success);
-                            if (mPaused) {
-                                return;
-                            }
-                            ToastUtils.show("disable ZJL "
-                                    + (success ? "success" : "failed"));
-                            if (!success) {
-                                if (null != mZJL) {
-                                    mZJL.setChecked(false);
-                                }
-                            } else {
-                                getPublicIp();
-                            }
-                        }
-                    });
+                if (ZJLUtils.isSwitchingZJL) {
+                    ToastUtils.showLimited(getString(R.string.zjl_switching_hint));
+                    if (null != mZJL) {
+                        mZJL.setChecked(!enabled);
+                    }
+                    return false;
                 }
+                ZJLUtils.enableZJL(new ZJLUtils.IZJLCallback() {
+                    @Override
+                    public void onResult(String status, boolean success) {
+                        Log.d(TAG, (enabled ? "enableZJL: " : "disableZJL: ")
+                                + "status = \n" + status + "\nsuccess = " + success);
+                        if (mPaused) {
+                            return;
+                        }
+                        ToastUtils.show(
+                                (enabled ? "enable ZJL " : "disable ZJL ")
+                                + (success ? "success" : "failed"));
+                        if (!success) {
+                            if (null != mZJL) {
+                                mZJL.setChecked(!enabled);
+                            }
+                        } else {
+                            getPublicIp();
+                        }
+
+                    }
+                }, enabled);
             }
             return true;
         }

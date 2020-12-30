@@ -29,5 +29,6 @@
 
     <string name="zjl_title">百度直连</string>
     <string name="zjl_summary">一键开启关闭Magisk百度直连模块</string>
+    <string name="zjl_switching_hint">正在切换百度直连, 请稍候...</string>
 
 </resources>

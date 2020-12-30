@@ -24,13 +24,18 @@ public class ZJLUtils {
 
 
     public static final boolean ZJL_SUPPORTED = isZJLSupported();
+    public static boolean isSwitchingZJL = false;
 
-    public static void enableZJL(IEnableZJLCallback listener) {
+    public static void enableZJL(final IZJLCallback listener, final boolean enable) {
         ThreadPoolUtil.post(new Runnable() {
             @Override
             public void run() {
-                final String status = RootCmd.execRootCmdWithResults("sh -c " + ENABLE_ZJL + "\n");
+                isSwitchingZJL = true;
+                final String status = RootCmd.execRootCmdWithResults("sh -c "
+                        + (enable ? ENABLE_ZJL : DISABLE_ZJL)
+                        + "\n");
                 if (null == listener) {
+                    isSwitchingZJL = false;
                     return;
                 }
                 Log.d(TAG, "enableZJL: status = " + status);
@@ -39,9 +44,14 @@ public class ZJLUtils {
                     public void run() {
                         if (TextUtils.isEmpty(status)) {
                             listener.onResult(status, false);
+                            isSwitchingZJL = false;
                             return;
                         }
-                        listener.onResult(status, !status.contains(STATUS_DISABLED));
+                        final boolean success = enable
+                                ? (!status.contains(STATUS_DISABLED))
+                                : (status.contains(STATUS_DISABLED));
+                        listener.onResult(status, success);
+                        isSwitchingZJL = false;
                     }
                 });
             }
@@ -49,32 +59,7 @@ public class ZJLUtils {
 
     }
 
-    public static void disableZJL(IDisableZJLCallback listener) {
-        ThreadPoolUtil.post(new Runnable() {
-            @Override
-            public void run() {
-                final String status = RootCmd.execRootCmdWithResults("sh -c " + DISABLE_ZJL + "\n");
-                if (null == listener) {
-                    return;
-                }
-                MainApplication.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (TextUtils.isEmpty(status)) {
-                            listener.onResult(status, false);
-                            return;
-                        }
-                        listener.onResult(status, status.contains(STATUS_DISABLED));
-                    }
-                });
-
-
-            }
-        });
-
-    }
-
-    public static void queryZJLStatus(final IZJLStatusListener listener) {
+    public static void queryZJLStatus(final IZJLCallback listener) {
         ThreadPoolUtil.post(new Runnable() {
             @Override
             public void run() {
@@ -98,19 +83,13 @@ public class ZJLUtils {
 
     }
 
-    public interface IZJLStatusListener {
-        void onResult(String str, boolean enabled);
+    public interface IZJLCallback {
+        void onResult(String status, boolean result);
     }
 
-    public interface IEnableZJLCallback {
-        void onResult(String str, boolean success);
-    }
-
-    public interface IDisableZJLCallback {
-        void onResult(String str, boolean success);
-    }
 
     private static boolean isZJLSupported() {
+        //runs on UI Thread
         String ZJL_ROOT_PATH = RootCmd.execRootCmdWithResults(
                 "find /system/xbin/ -name "
                         + ON + "  | awk -F '/[^/]*$' '{print $1}' | head -1");

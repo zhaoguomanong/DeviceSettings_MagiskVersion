@@ -33,4 +33,8 @@
     <string name="zjl_title">ZJL</string>
     <string name="zjl_summary">Enable or Disable magisk ZJL Module without reboot phone</string>
     <string name="zjl_switching_hint">switching ZJL, please wait ...</string>
+    <string name="zjl_enable_success">enable ZJL success</string>
+    <string name="zjl_disable_success">disable ZJL success</string>
+    <string name="zjl_enable_failed">enable ZJL failed</string>
+    <string name="zjl_disable_failed">disable ZJL failed</string>
 </resources>

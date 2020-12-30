@@ -201,6 +201,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     if (null != mZJL) {
                         mZJL.setChecked(!enabled);
                     }
+                    Log.e(TAG, "switching zjl return");
                     return false;
                 }
                 ZJLUtils.enableZJL(new ZJLUtils.IZJLCallback() {
@@ -211,9 +212,18 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                         if (mPaused) {
                             return;
                         }
+                        int hintResId;
+                        if (enabled) {
+                            hintResId = success
+                                    ? R.string.zjl_enable_success
+                                    : R.string.zjl_enable_failed;
+                        } else {
+                            hintResId = success
+                                    ? R.string.zjl_disable_success
+                                    : R.string.zjl_disable_failed;
+                        }
                         ToastUtils.show(
-                                (enabled ? "enable ZJL " : "disable ZJL ")
-                                + (success ? "success" : "failed"));
+                                getString(hintResId));
                         if (!success) {
                             if (null != mZJL) {
                                 mZJL.setChecked(!enabled);

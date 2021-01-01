@@ -15,7 +15,11 @@ public class ZJLUtils {
     private static final String ON = "开启.sh";
     private static final String OFF = "关闭.sh";
     private static final String STATUS = "检测.sh";
-
+    private static final String[] ZJL_KNOWN_PATHS = new String[] {
+            "/data/ZJL2.0_magisk",
+            "/system/xbin/ZJL2.0_magisk",
+            "/system/xbin/百度模式"
+    };
 
     private static String ZJL_BIN_PATH = null;
     private static String ENABLE_ZJL = null;
@@ -90,21 +94,34 @@ public class ZJLUtils {
 
     private static boolean isZJLSupported() {
         //runs on UI Thread
-        String ZJL_ROOT_PATH = RootCmd.execRootCmdWithResults(
-                "find /system/xbin/ -name "
-                        + ON + "  | awk -F '/[^/]*$' '{print $1}' | head -1");
-        if (TextUtils.isEmpty(ZJL_ROOT_PATH)
-                || !new File(ZJL_ROOT_PATH).exists()) {
+        Log.d(TAG, "isZJLSupported+++");
+        String ZJLRootPath = null;
+        for (String path : ZJL_KNOWN_PATHS) {
+            if (new File(path).exists()) {
+                ZJLRootPath = path;
+                break;
+            }
+        }
+        if (TextUtils.isEmpty(ZJLRootPath)) {
+            ZJLRootPath = RootCmd.execRootCmdWithResults(
+                    "find /system/xbin/ -name "
+                            + ON + "  | awk -F '/[^/]*$' '{print $1}' | head -1");
+        }
+        if (TextUtils.isEmpty(ZJLRootPath)
+                || !new File(ZJLRootPath).exists()) {
+            Log.d(TAG, "isZJLSupported---");
             return false;
         }
-        ZJL_BIN_PATH = ZJL_ROOT_PATH;
+        ZJL_BIN_PATH = ZJLRootPath;
         ENABLE_ZJL = ZJL_BIN_PATH + "/" + ON;
         DISABLE_ZJL = ZJL_BIN_PATH + "/" + OFF;
         STATUS_ZJL = ZJL_BIN_PATH + "/" + STATUS;
         Log.d(TAG, "ZJL_BIN_PATH = " + ZJL_BIN_PATH);
-        return new File(ENABLE_ZJL).exists()
+        boolean result = new File(ENABLE_ZJL).exists()
                 && new File(DISABLE_ZJL).exists()
                 && new File(STATUS_ZJL).exists();
+        Log.d(TAG, "isZJLSupported---");
+        return result;
     }
 
 }

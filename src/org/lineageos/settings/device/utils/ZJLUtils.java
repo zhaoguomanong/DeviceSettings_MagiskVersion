@@ -26,7 +26,6 @@ public class ZJLUtils {
     private static String DISABLE_ZJL = null;
     private static String STATUS_ZJL = null;
 
-
     public static final boolean ZJL_SUPPORTED = isZJLSupported();
     public static boolean isSwitchingZJL = false;
 
@@ -91,7 +90,6 @@ public class ZJLUtils {
         void onResult(String status, boolean result);
     }
 
-
     private static boolean isZJLSupported() {
         //runs on UI Thread
         Log.d(TAG, "isZJLSupported+++");
@@ -109,7 +107,7 @@ public class ZJLUtils {
         }
         if (TextUtils.isEmpty(ZJLRootPath)
                 || !new File(ZJLRootPath).exists()) {
-            Log.d(TAG, "isZJLSupported---");
+            Log.d(TAG, "isZJLSupported--- ---> false");
             return false;
         }
         ZJL_BIN_PATH = ZJLRootPath;
@@ -120,8 +118,13 @@ public class ZJLUtils {
         boolean result = new File(ENABLE_ZJL).exists()
                 && new File(DISABLE_ZJL).exists()
                 && new File(STATUS_ZJL).exists();
-        Log.d(TAG, "isZJLSupported---");
+        if (!result) {
+            ZJL_BIN_PATH = null;
+            ENABLE_ZJL = null;
+            DISABLE_ZJL = null;
+            STATUS_ZJL = null;
+        }
+        Log.d(TAG, "isZJLSupported--- ---> " + result);
         return result;
     }
-
 }

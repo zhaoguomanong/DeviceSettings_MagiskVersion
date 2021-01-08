@@ -218,4 +218,17 @@ public class SettingsUtils {
         return TextUtils.equals(result, HTTP_PROXY_ADDRESS_ENABLED);
     }
 
+    public static boolean supportDataPickFeature() {
+        if (!isLeEcoCustomROM()) {
+            return false;
+        }
+        List<SubscriptionInfo> list = SubscriptionManager.from(Utils.applicationContext)
+                .getActiveSubscriptionInfoList();
+        if (null == list || list.isEmpty()) {
+            return false;
+        }
+        //only dual SIM Card case needs this feature
+        return list.size() >= 2;
+    }
+
 }

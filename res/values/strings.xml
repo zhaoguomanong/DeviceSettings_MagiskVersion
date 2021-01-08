@@ -37,4 +37,6 @@
     <string name="zjl_disable_success">disable ZJL success</string>
     <string name="zjl_enable_failed">enable ZJL failed</string>
     <string name="zjl_disable_failed">disable ZJL failed</string>
+    <string name="data_pick_title">Switch data SIM Card</string>
+    <string name="data_pick_summary">Switch the SIM Card for data</string>
 </resources>

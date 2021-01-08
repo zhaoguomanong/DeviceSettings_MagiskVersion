@@ -34,4 +34,6 @@
     <string name="zjl_disable_success">关闭百度直连成功</string>
     <string name="zjl_enable_failed">开启百度直连失败</string>
     <string name="zjl_disable_failed">关闭百度直连失败</string>
+    <string name="data_pick_title">切换数据卡</string>
+    <string name="data_pick_summary">重新设置用来上网的手机卡</string>
 </resources>

@@ -34,6 +34,11 @@ public class SettingsProviderUtils {
     private static final int SWITCH_NET_BLOCKING_MAX_SECONDS = 60;
     private static final int ONE_SECOND = 1000;
 
+    private static final String CMD_DEFAULT_DATA_PICK = "am broadcast " +
+            "-a android.telephony.action.PRIMARY_SUBSCRIPTION_LIST_CHANGED " +
+            "-n com.android.settings/com.android.settings.sim.SimSelectNotification " +
+            "--ei android.telephony.extra.DEFAULT_SUBSCRIPTION_SELECT_TYPE 1\n";
+
     public static boolean setPreferredNetwork(int subIdCU, int networkCU, int subIdCT, int networkCT) {
         Log.d(TAG, "setPreferredNetwork: subIdCU = " + subIdCU + ", networkCU = " + networkCU
                 + ", subIdCT = " + subIdCT + ", networkCT = " + networkCT);
@@ -93,5 +98,15 @@ public class SettingsProviderUtils {
         return Settings.Global.getInt(Utils.applicationContext.getContentResolver(),
                 PREFERRED_NETWORK_MODE_SETTING_GLOBAL_KEY + subId,
                 Utils.NETWORK_MODE_GLOBAL);
+    }
+
+    public static void sendDataPickBroadcast() {
+        ThreadPoolUtil.post(new Runnable() {
+            @Override
+            public void run() {
+                RootCmd.execRootCmdSilent(CMD_DEFAULT_DATA_PICK);
+            }
+        });
+
     }
 }

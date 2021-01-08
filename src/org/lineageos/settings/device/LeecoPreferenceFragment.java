@@ -25,6 +25,7 @@ import androidx.preference.SwitchPreference;
 import android.text.TextUtils;
 import android.util.Log;
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
+import org.lineageos.settings.device.utils.SettingsProviderUtils;
 import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;
@@ -39,11 +40,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private static final String KEY_CDMA_ENABLE = "key_cdma_enable";
     private static final String KEY_HTTP_PROXY_ENABLE = "key_http_proxy_enable";
     private static final String KEY_ZJL_ENABLE = "key_zjl_enable";
+    private static final String KEY_DATA_PICK = "key_data_pick";
 
     private SwitchPreference mCamHal3Enable;
     private SwitchPreference mCDMA;
     private SwitchPreference mHttpProxy;
     private SwitchPreference mZJL;
+    private Preference mDataPick;
 
     private boolean mPaused = true;
     private String mCurrentPublicIp = null;
@@ -80,6 +83,18 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         } else {
             prefSet.removePreference(mZJL);
             mZJL = null;
+        }
+        mDataPick = findPreference(KEY_DATA_PICK);
+        if (SettingsUtils.supportDataPickFeature()) {
+            mDataPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    SettingsProviderUtils.sendDataPickBroadcast();
+                    return true;
+                }
+            });
+        } else {
+            prefSet.removePreference(mDataPick);
+            mDataPick = null;
         }
         Log.d(TAG, "onCreate---");
     }

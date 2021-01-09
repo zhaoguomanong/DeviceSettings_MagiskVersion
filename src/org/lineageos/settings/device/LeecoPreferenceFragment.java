@@ -16,6 +16,14 @@
 
 package org.lineageos.settings.device;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.Preference;
@@ -24,6 +32,8 @@ import androidx.preference.SwitchPreference;
 
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.lineageos.settings.device.utils.IPDetailBean;
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.SettingsProviderUtils;
 import org.lineageos.settings.device.utils.ThreadPoolUtil;
@@ -42,6 +52,8 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private static final String KEY_ZJL_ENABLE = "key_zjl_enable";
     private static final String KEY_DATA_PICK = "key_data_pick";
 
+    private Activity mActivity;
+
     private SwitchPreference mCamHal3Enable;
     private SwitchPreference mCDMA;
     private SwitchPreference mHttpProxy;
@@ -49,13 +61,39 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private Preference mDataPick;
 
     private boolean mPaused = true;
-    private String mCurrentPublicIp = null;
+
+    private BroadcastReceiver mNetWorkStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network[] networks = connMgr.getAllNetworks();
+            StringBuilder netStatus = new StringBuilder();
+            boolean hasNet = false;
+            for (int i=0; i < networks.length; i++){
+                NetworkInfo networkInfo = connMgr.getNetworkInfo(networks[i]);
+                netStatus.append(networkInfo.getTypeName() + " connect is " + networkInfo.isConnected());
+                if (networkInfo.isConnected()) {
+                    hasNet = true;
+                }
+            }
+            Log.d(TAG, "mNetWorkStateReceiver: status = " + netStatus);
+            if (!mPaused) {
+                if (hasNet) {
+                    getPublicIpRegionName();
+                } else {
+                    resetZJLSummary();
+                }
+
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.leeco_settings_panel);
         Log.d(TAG, "onCreate+++");
+        mActivity = getActivity();
         final PreferenceScreen prefSet = getPreferenceScreen();
         mCamHal3Enable = (SwitchPreference) findPreference(KEY_CAMHAL3_ENABLE);
         if (SettingsUtils.supportCamHal3Toggle()) {
@@ -153,7 +191,14 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             }
 
         }
-        getPublicIp(false);
+        if (ZJLUtils.ZJL_SUPPORTED) {
+            getPublicIpRegionName();
+        }
+        if (ZJLUtils.ZJL_SUPPORTED) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            mActivity.registerReceiver(mNetWorkStateReceiver, filter);
+        }
         Log.d(TAG, "onResume---");
     }
 
@@ -161,6 +206,13 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     public void onPause() {
         super.onPause();
         mPaused = true;
+        if (ZJLUtils.ZJL_SUPPORTED) {
+            try {
+                mActivity.unregisterReceiver(mNetWorkStateReceiver);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private Preference.OnPreferenceChangeListener mPrefListener =
@@ -229,7 +281,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     Log.e(TAG, "switching zjl return");
                     return false;
                 }
-                getActivity().setTitle(getString(R.string.device_settings_app_name));
+                resetZJLSummary();
                 ZJLUtils.enableZJL(new ZJLUtils.IZJLCallback() {
                     @Override
                     public void onResult(String status, boolean success) {
@@ -255,7 +307,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                                 mZJL.setChecked(!enabled);
                             }
                         } else {
-                            getPublicIp(true);
+                            getPublicIpRegionName();
                         }
 
                     }
@@ -265,42 +317,51 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         }
     };
 
-    private void getPublicIp(final boolean triggeredBySwitchingZJL) {
+    private void getPublicIpRegionName() {
         ThreadPoolUtil.post(new Runnable() {
             @Override
             public void run() {
-                final String ip = Utils.getPublicIp();
-                if (triggeredBySwitchingZJL
-                        && TextUtils.equals(mCurrentPublicIp, ip)
-                        && !mPaused) {
-                    Log.e(TAG, "triggered by switching ZJL, ip not changed, post delay msg, mCurrentPublicIp = "
-                            + mCurrentPublicIp + ", ip = " + ip);
-                    MainApplication.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            getPublicIp(true);
-                        }
-                    }, 1000);
+                final IPDetailBean ipDetailBean = Utils.getPublicIpRegionName();
+                if (null == ipDetailBean
+                        || TextUtils.isEmpty(ipDetailBean.getAddr())
+                        || TextUtils.isEmpty(ipDetailBean.getIp())) {
+                    Log.d(TAG, "get ipDetailBean failed");
+                    resetZJLSummary();
                     return;
                 }
-                if (TextUtils.isEmpty(ip)) {
-                    Log.d(TAG, "get ip failed");
-                    return;
-                }
+                Log.d(TAG, "ip = " + ipDetailBean.getIp() + ", cityName = " + ipDetailBean.getAddr());
                 MainApplication.post(new Runnable() {
                     @Override
                     public void run() {
                         if (mPaused) {
                             return;
                         }
-                        String originalTitle = getString(R.string.device_settings_app_name);
-                        String newTitle = originalTitle + "  [" + ip + "]";
-                        Log.d(TAG, "set title to " + newTitle);
-                        getActivity().setTitle(newTitle);
-                        mCurrentPublicIp = ip;
+                        String targetSummary = mActivity.getString(R.string.zjl_summary);
+                        targetSummary = targetSummary +  "\n"
+                                + "──────────────\n"
+                                + ipDetailBean.getIp() + "\n"
+                                + ipDetailBean.getAddr();
+                        mZJL.setSummary(targetSummary);
+
                     }
                 });
 
+            }
+        });
+    }
+
+    private void resetZJLSummary() {
+        MainApplication.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mPaused) {
+                    return;
+                }
+                if (null == mZJL) {
+                    return;
+                }
+                //reset the summary
+                mZJL.setSummary(mActivity.getString(R.string.zjl_summary));
             }
         });
 

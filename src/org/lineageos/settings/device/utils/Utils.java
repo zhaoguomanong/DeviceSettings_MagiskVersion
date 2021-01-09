@@ -6,20 +6,17 @@ import android.telephony.ServiceState;
 import android.telephony.SubscriptionInfo;
 import android.text.TextUtils;
 import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.alibaba.fastjson.JSONObject;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 public class Utils {
+
+    private static final String TAG = "DeviceSettings_Utils";
 
     public static Context applicationContext;
     public static boolean isSwitchingCDMA = false;
@@ -77,42 +74,44 @@ public class Utils {
         return "STATE_UNKNOWN";
     }
 
-    public static String getPublicIp() {
-        URL infoUrl = null;
+    public static IPDetailBean getPublicIpRegionName() {
+        URL url = null;
         InputStream inStream = null;
-        String line = "";
+        StringBuilder json = new StringBuilder();
         try {
-            infoUrl = new URL("http://pv.sohu.com/cityjson?ie=utf-8");
-            URLConnection connection = infoUrl.openConnection();
+            url = new URL("http://whois.pconline.com.cn/ipJson.jsp?json=true");
+            URLConnection connection = url.openConnection();
             HttpURLConnection httpConnection = (HttpURLConnection) connection;
             int responseCode = httpConnection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 inStream = httpConnection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "utf-8"));
-                StringBuilder strber = new StringBuilder();
-                while ((line = reader.readLine()) != null)
-                    strber.append(line + "\n");
-                inStream.close();
-                // 从反馈的结果中提取出IP地址
-                int start = strber.indexOf("{");
-                int end = strber.indexOf("}");
-                String json = strber.substring(start, end + 1);
-                if (json != null) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(json);
-                        line = jsonObject.optString("cip");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "GBK"));
+                String tmp;
+                while ((tmp = reader.readLine()) != null) {
+                    json.append(tmp);
                 }
-                return line;
             }
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } finally {
+            try {
+                inStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (TextUtils.isEmpty(json.toString())) {
+            return null;
+        }
+        try {
+            Log.d(TAG, "getPublicIpRegionName: json = " + json);
+            IPDetailBean ipDetailBean = JSONObject.parseObject(json.toString(),
+                    IPDetailBean.class);
+            return ipDetailBean;
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return line;
+        return null;
     }
 
 }

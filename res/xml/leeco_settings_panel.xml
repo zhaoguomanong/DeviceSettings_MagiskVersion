@@ -38,7 +38,8 @@
         android:key="key_zjl_enable"
         android:defaultValue="false"
         android:title="@string/zjl_title"
-        android:summary="@string/zjl_summary" />
+        android:summary="@string/zjl_summary"
+        />
 
     <androidx.preference.Preference
         android:key="key_data_pick"

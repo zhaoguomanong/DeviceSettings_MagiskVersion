@@ -1,12 +1,14 @@
 package org.lineageos.settings.device.utils;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.telephony.ServiceState;
 import android.telephony.SubscriptionInfo;
 import android.text.TextUtils;
 import android.util.Log;
 import com.alibaba.fastjson.JSONObject;
+import org.lineageos.settings.device.MainApplication;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -75,6 +77,7 @@ public class Utils {
     }
 
     public static IPDetailBean getPublicIpRegionName() {
+        Log.d(TAG, "getPublicIpRegionName+++");
         URL url = null;
         InputStream inStream = null;
         StringBuilder json = new StringBuilder();
@@ -107,11 +110,22 @@ public class Utils {
             Log.d(TAG, "getPublicIpRegionName: json = " + json);
             IPDetailBean ipDetailBean = JSONObject.parseObject(json.toString(),
                     IPDetailBean.class);
+            Log.d(TAG, "getPublicIpRegionName---");
             return ipDetailBean;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static boolean hasNetWork() {
+        try {
+            ConnectivityManager connectivity =
+                    (ConnectivityManager) MainApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+            return  null != connectivity.getActiveNetworkInfo();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

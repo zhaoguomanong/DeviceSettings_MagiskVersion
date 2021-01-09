@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The LineageOS Project
+ * Copyright (C) 2021 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,19 @@
 package org.lineageos.settings.device;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkInfo;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
-
 import android.text.TextUtils;
 import android.util.Log;
-
 import org.lineageos.settings.device.utils.IPDetailBean;
 import org.lineageos.settings.device.utils.ISetPreferredNetworkResultListener;
 import org.lineageos.settings.device.utils.SettingsProviderUtils;
@@ -40,7 +37,6 @@ import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;
 import org.lineageos.settings.device.utils.ZJLUtils;
-
 import static org.lineageos.settings.device.SettingsUtils.HTTP_PROXY_PORT;
 
 public class LeecoPreferenceFragment extends PreferenceFragment {
@@ -61,32 +57,61 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private Preference mDataPick;
 
     private boolean mPaused = true;
+    private boolean mQueryIpWhenOnResume = false;
 
-    private BroadcastReceiver mNetWorkStateReceiver = new BroadcastReceiver() {
+    private ConnectivityManager mConnectivityManager;
+
+    private ConnectivityManager.NetworkCallback mNetworkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            Network[] networks = connMgr.getAllNetworks();
-            StringBuilder netStatus = new StringBuilder();
-            boolean hasNet = false;
-            for (int i=0; i < networks.length; i++){
-                NetworkInfo networkInfo = connMgr.getNetworkInfo(networks[i]);
-                netStatus.append(networkInfo.getTypeName() + " connect is " + networkInfo.isConnected());
-                if (networkInfo.isConnected()) {
-                    hasNet = true;
-                }
-            }
-            Log.d(TAG, "mNetWorkStateReceiver: status = " + netStatus);
-            if (!mPaused) {
-                if (hasNet) {
-                    getPublicIpRegionName();
+        public void onAvailable(@NonNull Network network) {
+            super.onAvailable(network);
+            final boolean HAS_NET = Utils.hasNetWork();
+            Log.d(TAG, "NetworkCallback: onAvailable ---> hasNet = " + HAS_NET);
+            if (HAS_NET) {
+                if (!mQueryIpWhenOnResume) {
+                    getPublicIpRegionName(false);
                 } else {
-                    resetZJLSummary();
+                    Log.d(TAG, "NetworkCallback: onAvailable onResume query ip in progress, ignore this msg");
                 }
+            } else {
+                resetZJLSummary();
+            }
 
+        }
+
+        @Override
+        public void onLost(@NonNull Network network) {
+            super.onLost(network);
+            final boolean HAS_NET = Utils.hasNetWork();
+            Log.d(TAG, "NetworkCallback: onLost ---> hasNet = " + HAS_NET);
+            if (HAS_NET) {
+                if (!mQueryIpWhenOnResume) {
+                    getPublicIpRegionName(false);
+                } else {
+                    Log.d(TAG, "NetworkCallback: onLost onResume query ip in progress, ignore this msg");
+                }
+            } else {
+                resetZJLSummary();
+            }
+        }
+
+        @Override
+        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+            super.onCapabilitiesChanged(network, networkCapabilities);
+            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
+                    Log.d(TAG, "onCapabilitiesChanged ---> WIFI");
+                } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    Log.d(TAG, "onCapabilitiesChanged ---> MOBILE");
+                } else {
+                    Log.d(TAG, "onCapabilitiesChanged ---> UNKNOWN");
+                }
             }
         }
     };
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -192,12 +217,19 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
         }
         if (ZJLUtils.ZJL_SUPPORTED) {
-            getPublicIpRegionName();
+            if (Utils.hasNetWork()) {
+                mQueryIpWhenOnResume = true;
+                getPublicIpRegionName(true);
+            } else {
+                resetZJLSummary();
+            }
         }
         if (ZJLUtils.ZJL_SUPPORTED) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            mActivity.registerReceiver(mNetWorkStateReceiver, filter);
+            mConnectivityManager = (ConnectivityManager) mActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (null != mConnectivityManager) {
+                mConnectivityManager.registerNetworkCallback(new NetworkRequest.Builder().build(),
+                        mNetworkCallback);
+            }
         }
         Log.d(TAG, "onResume---");
     }
@@ -207,10 +239,8 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         super.onPause();
         mPaused = true;
         if (ZJLUtils.ZJL_SUPPORTED) {
-            try {
-                mActivity.unregisterReceiver(mNetWorkStateReceiver);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (null != mConnectivityManager) {
+                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
             }
         }
     }
@@ -307,7 +337,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                                 mZJL.setChecked(!enabled);
                             }
                         } else {
-                            getPublicIpRegionName();
+                            getPublicIpRegionName(false);
                         }
 
                     }
@@ -317,7 +347,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         }
     };
 
-    private void getPublicIpRegionName() {
+    private void getPublicIpRegionName(boolean calledByOnResume) {
         ThreadPoolUtil.post(new Runnable() {
             @Override
             public void run() {
@@ -327,6 +357,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                         || TextUtils.isEmpty(ipDetailBean.getIp())) {
                     Log.d(TAG, "get ipDetailBean failed");
                     resetZJLSummary();
+                    if (calledByOnResume) {
+                        mQueryIpWhenOnResume = false;
+                    }
                     return;
                 }
                 Log.d(TAG, "ip = " + ipDetailBean.getIp() + ", cityName = " + ipDetailBean.getAddr());
@@ -334,6 +367,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                     @Override
                     public void run() {
                         if (mPaused) {
+                            if (calledByOnResume) {
+                                mQueryIpWhenOnResume = false;
+                            }
                             return;
                         }
                         String targetSummary = mActivity.getString(R.string.zjl_summary);
@@ -342,6 +378,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                                 + ipDetailBean.getIp() + "\n"
                                 + ipDetailBean.getAddr();
                         mZJL.setSummary(targetSummary);
+                        if (calledByOnResume) {
+                            mQueryIpWhenOnResume = false;
+                        }
 
                     }
                 });

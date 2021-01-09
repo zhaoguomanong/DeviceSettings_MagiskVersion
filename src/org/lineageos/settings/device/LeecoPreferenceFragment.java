@@ -67,15 +67,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             super.onAvailable(network);
             final boolean HAS_NET = Utils.hasNetWork();
             Log.d(TAG, "NetworkCallback: onAvailable ---> hasNet = " + HAS_NET);
-            if (HAS_NET) {
-                if (!mQueryIpWhenOnResume) {
-                    getPublicIpRegionName(false);
-                } else {
-                    Log.d(TAG, "NetworkCallback: onAvailable onResume query ip in progress, ignore this msg");
-                }
-            } else {
-                resetZJLSummary();
-            }
+            onNetworkChange(HAS_NET);
 
         }
 
@@ -84,15 +76,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             super.onLost(network);
             final boolean HAS_NET = Utils.hasNetWork();
             Log.d(TAG, "NetworkCallback: onLost ---> hasNet = " + HAS_NET);
-            if (HAS_NET) {
-                if (!mQueryIpWhenOnResume) {
-                    getPublicIpRegionName(false);
-                } else {
-                    Log.d(TAG, "NetworkCallback: onLost onResume query ip in progress, ignore this msg");
-                }
-            } else {
-                resetZJLSummary();
-            }
+            onNetworkChange(HAS_NET);
         }
 
         @Override
@@ -404,5 +388,17 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             }
         });
 
+    }
+
+    private void onNetworkChange(final boolean HAS_NET) {
+        if (HAS_NET) {
+            if (!mQueryIpWhenOnResume) {
+                getPublicIpRegionName(false);
+            } else {
+                Log.d(TAG, "onNetworkChange onResume query ip in progress, ignore this msg");
+            }
+        } else {
+            resetZJLSummary();
+        }
     }
 }

@@ -51,10 +51,14 @@ public class Utils {
             return Operator.OTHER;
         }
         switch (MCC_MNC) {
-            case "46011":
             case "46003":
+            case "46011":
+            case "46012":
                 return Operator.CHINA_TELECOM;
             case "46001":
+            case "46006":
+            case "46009":
+            case "46010":
                 return Operator.CHINA_UNICOM;
             default:
                 return Operator.OTHER;

@@ -91,6 +91,9 @@ public class ZJLUtils {
     }
 
     private static boolean isZJLSupported() {
+        if (!RootCmd.haveRoot()) {
+            return false;
+        }
         //runs on UI Thread
         Log.d(TAG, "isZJLSupported+++");
         String ZJLRootPath = null;

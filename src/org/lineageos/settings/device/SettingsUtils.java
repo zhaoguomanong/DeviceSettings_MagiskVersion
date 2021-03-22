@@ -66,7 +66,14 @@ public class SettingsUtils {
         return TextUtils.equals("1", enable);
     }
 
+    public static boolean supportHttpProxyToggle() {
+        return RootCmd.haveRoot();
+    }
+
     public static boolean supportCamHal3Toggle() {
+        if (!RootCmd.haveRoot()) {
+            return false;
+        }
         return isLeEcoCustomROM();
     }
 
@@ -151,6 +158,9 @@ public class SettingsUtils {
     }
 
     public static boolean supportSwitchCDMAFeature() {
+        if (!RootCmd.haveRoot()) {
+            return false;
+        }
         if (!isLeEcoCustomROM()) {
             return false;
         }
@@ -219,6 +229,9 @@ public class SettingsUtils {
     }
 
     public static boolean supportDataPickFeature() {
+        if (!RootCmd.haveRoot()) {
+            return false;
+        }
         if (!isLeEcoCustomROM()) {
             return false;
         }

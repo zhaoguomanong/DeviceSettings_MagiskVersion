@@ -16,17 +16,23 @@ public class RootCmd {
 
     private static final String TAG = "RootCmd";
 
+    private static Boolean hasRoot = null;
+
     /**
      *   判断机器Android是否已经root，即是否获取root权限
      */
     public static boolean haveRoot() {
+        if (null != hasRoot) {
+            return hasRoot;
+        }
         int ret = execRootCmdSilent("echo test"); // 通过执行测试命令来检测
         if (ret == 0) {
             Log.i(TAG, "have root!");
         } else {
             Log.i(TAG, "not root!");
         }
-        return ret == 0;
+        hasRoot = ret == 0;
+        return hasRoot;
     }
 
     /**

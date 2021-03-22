@@ -37,12 +37,12 @@ public class LeecoPreferenceActivity extends PreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!RootCmd.haveRoot()) {
-            Toast.makeText(this,
-                    "Can't get root privileges, install magisk and grant this app with privileges",
-                    Toast.LENGTH_SHORT).show();
-            finish();
-        }
+//        if (!RootCmd.haveRoot()) {
+//            Toast.makeText(this,
+//                    "Can't get root privileges, install magisk and grant this app with privileges",
+//                    Toast.LENGTH_SHORT).show();
+//            finish();
+//        }
         if (PermissionsUtils.isMissingCorePermissions(this)) {
             PermissionsUtils.requestPermissions(this);
             hasCommitTransaction = false;

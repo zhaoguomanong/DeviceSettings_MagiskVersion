@@ -115,9 +115,14 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         }
         mCDMA = findPreference(KEY_CDMA_ENABLE);
         mHttpProxy = findPreference(KEY_HTTP_PROXY_ENABLE);
-        mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
-        mHttpProxy.setSummary(getString(R.string.http_proxy_summary,
-                HTTP_PROXY_PORT));
+        if (SettingsUtils.supportHttpProxyToggle()) {
+            mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
+            mHttpProxy.setSummary(getString(R.string.http_proxy_summary,
+                    HTTP_PROXY_PORT));
+        } else {
+            prefSet.removePreference(mHttpProxy);
+            mHttpProxy = null;
+        }
         if (SettingsUtils.supportSwitchCDMAFeature()) {
             mCDMA.setOnPreferenceChangeListener(mPrefListener);
         } else {

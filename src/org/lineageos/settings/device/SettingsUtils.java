@@ -229,6 +229,9 @@ public class SettingsUtils {
     }
 
     public static boolean supportDataPickFeature() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return false;
+        }
         if (!RootCmd.haveRoot()) {
             return false;
         }

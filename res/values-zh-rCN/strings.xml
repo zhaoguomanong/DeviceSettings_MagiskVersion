@@ -36,4 +36,5 @@
     <string name="zjl_disable_failed">关闭百度直连失败</string>
     <string name="data_pick_title">切换数据卡</string>
     <string name="data_pick_summary">重新设置用来上网的手机卡</string>
+    <string name="status_up_time">"开机累计时长"</string>
 </resources>

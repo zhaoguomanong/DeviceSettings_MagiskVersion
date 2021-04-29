@@ -28,6 +28,9 @@ import androidx.preference.PreferenceFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import org.lineageos.settings.device.utils.IPDetailBean;
@@ -37,6 +40,8 @@ import org.lineageos.settings.device.utils.ThreadPoolUtil;
 import org.lineageos.settings.device.utils.ToastUtils;
 import org.lineageos.settings.device.utils.Utils;
 import org.lineageos.settings.device.utils.ZJLUtils;
+import android.text.format.DateUtils;
+import java.lang.ref.WeakReference;
 import static org.lineageos.settings.device.SettingsUtils.HTTP_PROXY_PORT;
 
 public class LeecoPreferenceFragment extends PreferenceFragment {
@@ -47,6 +52,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private static final String KEY_HTTP_PROXY_ENABLE = "key_http_proxy_enable";
     private static final String KEY_ZJL_ENABLE = "key_zjl_enable";
     private static final String KEY_DATA_PICK = "key_data_pick";
+    private static final String KEY_UPTIME = "up_time";
 
     private Activity mActivity;
 
@@ -55,11 +61,15 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
     private SwitchPreference mHttpProxy;
     private SwitchPreference mZJL;
     private Preference mDataPick;
+    private Preference mUptime;
 
     private boolean mPaused = true;
     private boolean mQueryIpWhenOnResume = false;
 
     private ConnectivityManager mConnectivityManager;
+
+    private static final int EVENT_UPDATE_STATS = 500;
+    private Handler mHandler;
 
     private ConnectivityManager.NetworkCallback mNetworkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
@@ -148,6 +158,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             prefSet.removePreference(mDataPick);
             mDataPick = null;
         }
+        mUptime = findPreference(KEY_UPTIME);
         Log.d(TAG, "onCreate---");
     }
 
@@ -404,6 +415,55 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             }
         } else {
             resetZJLSummary();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getHandler().sendEmptyMessage(EVENT_UPDATE_STATS);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getHandler().removeMessages(EVENT_UPDATE_STATS);
+    }
+
+    private Handler getHandler() {
+        if (mHandler == null) {
+            mHandler = new MyHandler(this);
+        }
+        return mHandler;
+    }
+
+    private void updateTimes() {
+        mUptime.setSummary(DateUtils.formatElapsedTime(SystemClock.elapsedRealtime() / 1000));
+    }
+
+    private static class MyHandler extends Handler {
+        private WeakReference<LeecoPreferenceFragment> mStatus;
+
+        public MyHandler(LeecoPreferenceFragment fragment) {
+            mStatus = new WeakReference<>(fragment);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            LeecoPreferenceFragment status = mStatus.get();
+            if (status == null) {
+                return;
+            }
+
+            switch (msg.what) {
+                case EVENT_UPDATE_STATS:
+                    status.updateTimes();
+                    sendEmptyMessageDelayed(EVENT_UPDATE_STATS, 1000);
+                    break;
+
+                default:
+                    throw new IllegalStateException("Unknown message " + msg.what);
+            }
         }
     }
 }

@@ -46,4 +46,9 @@
         android:title="@string/data_pick_title"
         android:summary="@string/data_pick_summary" />
 
+    <androidx.preference.Preference
+        android:key="up_time"
+        android:title="@string/status_up_time"
+        android:selectable="false"/>
+
 </androidx.preference.PreferenceScreen>

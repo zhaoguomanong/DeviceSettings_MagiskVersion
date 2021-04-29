@@ -39,4 +39,5 @@
     <string name="zjl_disable_failed">disable ZJL failed</string>
     <string name="data_pick_title">Switch data SIM Card</string>
     <string name="data_pick_summary">Switch the SIM Card for data</string>
+    <string name="status_up_time">Up time</string>
 </resources>

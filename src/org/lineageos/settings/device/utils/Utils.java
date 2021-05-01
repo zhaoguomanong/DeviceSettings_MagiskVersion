@@ -1,6 +1,8 @@
 package org.lineageos.settings.device.utils;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.telephony.ServiceState;
@@ -15,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 public class Utils {
 
@@ -28,6 +31,11 @@ public class Utils {
     public static final int NETWORK_MODE_LTE_ONLY = getLTEONLY();
     public static final int NETWORK_MODE_GLOBAL = getGlobalMode();
     public static final int NETWORK_MODE_GSM_ONLY = getGSMONLY();
+
+    public static final String[] HTTP_PROXY_DEPENDENCY_APPS = new String[] {
+            "com.v2ray.ang",
+            "com.cqyapp.tinyproxy"
+    };
 
     private static int getLTEONLY() {
         return 11;
@@ -132,4 +140,24 @@ public class Utils {
         }
     }
 
+    public static boolean allAppsInstalled(String[] apps) {
+        if (null == apps
+                || apps.length == 0) {
+            return false;
+        }
+        final PackageManager packageManager = MainApplication.getInstance().getPackageManager();
+        List<PackageInfo> info = packageManager.getInstalledPackages(0);
+        if(info == null || info.isEmpty()) {
+            return false;
+        }
+        int installedAppsCount = 0;
+        for (String app : apps) {
+            for ( int i = 0; i < info.size(); i++ ) {
+                if (TextUtils.equals(info.get(i).packageName, app)) {
+                    installedAppsCount++;
+                }
+            }
+        }
+        return installedAppsCount == apps.length;
+    }
 }

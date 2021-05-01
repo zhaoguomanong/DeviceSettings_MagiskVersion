@@ -67,7 +67,10 @@ public class SettingsUtils {
     }
 
     public static boolean supportHttpProxyToggle() {
-        return RootCmd.haveRoot();
+        if  (!RootCmd.haveRoot()) {
+            return false;
+        }
+        return Utils.allAppsInstalled(Utils.HTTP_PROXY_DEPENDENCY_APPS);
     }
 
     public static boolean supportCamHal3Toggle() {

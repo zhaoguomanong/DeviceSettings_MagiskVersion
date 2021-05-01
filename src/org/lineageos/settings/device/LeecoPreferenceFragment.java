@@ -65,6 +65,9 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
     private boolean mPaused = true;
     private boolean mQueryIpWhenOnResume = false;
+    private boolean mHttpProxyRemoved = false;
+
+    private boolean mFirstTimeInit = false;
 
     private ConnectivityManager mConnectivityManager;
 
@@ -125,13 +128,17 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         }
         mCDMA = findPreference(KEY_CDMA_ENABLE);
         mHttpProxy = findPreference(KEY_HTTP_PROXY_ENABLE);
-        if (SettingsUtils.supportHttpProxyToggle()) {
+        mFirstTimeInit = true;
+        final boolean supportHttpProxyToggle = SettingsUtils.supportHttpProxyToggle();
+        if (supportHttpProxyToggle) {
             mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
             mHttpProxy.setSummary(getString(R.string.http_proxy_summary,
                     HTTP_PROXY_PORT));
+            mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
+            mHttpProxyRemoved = false;
         } else {
-            prefSet.removePreference(mHttpProxy);
-            mHttpProxy = null;
+            getPreferenceScreen().removePreference(mHttpProxy);
+            mHttpProxyRemoved = true;
         }
         if (SettingsUtils.supportSwitchCDMAFeature()) {
             mCDMA.setOnPreferenceChangeListener(mPrefListener);
@@ -187,9 +194,27 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         if (null != mCDMA) {
             mCDMA.setChecked(SettingsUtils.isCDMAEnabled());
         }
-        if (null != mHttpProxy) {
-            mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
+
+        if (mFirstTimeInit) {
+            //it has already been set in onCreate()
+            mFirstTimeInit = false;
+        } else {
+            final boolean supportHttpProxyToggle = SettingsUtils.supportHttpProxyToggle();
+            if (supportHttpProxyToggle) {
+                if (mHttpProxyRemoved) {
+                    getPreferenceScreen().addPreference(mHttpProxy);
+                }
+                mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
+                mHttpProxy.setSummary(getString(R.string.http_proxy_summary,
+                        HTTP_PROXY_PORT));
+                mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
+                mHttpProxyRemoved = false;
+            } else {
+                getPreferenceScreen().removePreference(mHttpProxy);
+                mHttpProxyRemoved = true;
+            }
         }
+
         if (ZJLUtils.ZJL_SUPPORTED) {
             if (ZJLUtils.isSwitchingZJL) {
                 Log.e(TAG, "switching ZJL, no need ZJL query result");

@@ -56,6 +56,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
 
     private Activity mActivity;
 
+    private PreferenceScreen prefSet;
     private SwitchPreference mCamHal3Enable;
     private SwitchPreference mCDMA;
     private SwitchPreference mHttpProxy;
@@ -116,7 +117,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.leeco_settings_panel);
         Log.d(TAG, "onCreate+++");
         mActivity = getActivity();
-        final PreferenceScreen prefSet = getPreferenceScreen();
+        prefSet = getPreferenceScreen();
         mCamHal3Enable = (SwitchPreference) findPreference(KEY_CAMHAL3_ENABLE);
         if (SettingsUtils.supportCamHal3Toggle()) {
             mCamHal3Enable.setChecked(SettingsUtils.cameraHAL3Enable());
@@ -137,7 +138,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
             mHttpProxyRemoved = false;
         } else {
-            getPreferenceScreen().removePreference(mHttpProxy);
+            prefSet.removePreference(mHttpProxy);
             mHttpProxyRemoved = true;
         }
         if (SettingsUtils.supportSwitchCDMAFeature()) {
@@ -202,7 +203,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
             final boolean supportHttpProxyToggle = SettingsUtils.supportHttpProxyToggle();
             if (supportHttpProxyToggle) {
                 if (mHttpProxyRemoved) {
-                    getPreferenceScreen().addPreference(mHttpProxy);
+                    prefSet.addPreference(mHttpProxy);
                 }
                 mHttpProxy.setOnPreferenceChangeListener(mPrefListener);
                 mHttpProxy.setSummary(getString(R.string.http_proxy_summary,
@@ -210,7 +211,7 @@ public class LeecoPreferenceFragment extends PreferenceFragment {
                 mHttpProxy.setChecked(SettingsUtils.isHttpProxyEnabled());
                 mHttpProxyRemoved = false;
             } else {
-                getPreferenceScreen().removePreference(mHttpProxy);
+                prefSet.removePreference(mHttpProxy);
                 mHttpProxyRemoved = true;
             }
         }

@@ -155,6 +155,7 @@ public class Utils {
             for ( int i = 0; i < info.size(); i++ ) {
                 if (TextUtils.equals(info.get(i).packageName, app)) {
                     installedAppsCount++;
+                    break;
                 }
             }
         }

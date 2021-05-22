@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013-2016 The CyanogenMod Project
+               (C) 2017 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="camera_hal3_title">Camera HAL3</string>
+    <string name="camera_hal3_summary">禁用HAL3將會啟用HAL1. 切換HAL後請等待幾秒再使用相機, 因為底層切換需要時間. 註意谷歌相機只能在HAL3下工作.</string>
+    <string name="cdma_title">電信2g/3g語音通話</string>
+    <string name="cdma_summary">開啟電信2g/3g語音通話功能, 聯通卡只能工作在2g(可能無服務); 關閉電信2g/3g語音通話, 電信卡工作在4g模式(如果運營商不支持VOLTE, 則只能上網不能通話和收發短信), 聯通卡工作在3g/2g模式(3g優先).</string>
+    <string name="core_permissions_lost">當前應用缺少必要權限，無法正常使用，請進入設置打開相應權限</string>
+    <string name="cam_hal_switching_hint">正在切換Camera Hal, 請稍候...</string>
+    <string name="net_switching_hint">正在切換網絡, 請稍候...</string>
+    <string name="net_switch_failed">切換失敗, 缺少修改通話狀態權限</string>
+    <string name="http_proxy_title">Http Proxy</string>
+    <string name="http_proxy_summary">開啟關閉系統http代理 (127.0.0.1:%s)</string>
+    <string name="zjl_title">百度直連</string>
+    <string name="zjl_summary">一鍵開啟關閉Magisk百度直連模塊</string>
+    <string name="zjl_switching_hint">正在切換百度直連, 請稍候...</string>
+    <string name="zjl_enable_success">開啟百度直連成功</string>
+    <string name="zjl_disable_success">關閉百度直連成功</string>
+    <string name="zjl_enable_failed">開啟百度直連失敗</string>
+    <string name="zjl_disable_failed">關閉百度直連失敗</string>
+    <string name="data_pick_title">切換數據卡</string>
+    <string name="data_pick_summary">重新設置用來上網的手機卡</string>
+    <string name="status_up_time">"開機累計時長"</string>
+</resources>

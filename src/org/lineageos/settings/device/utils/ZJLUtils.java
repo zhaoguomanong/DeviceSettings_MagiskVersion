@@ -16,6 +16,7 @@ public class ZJLUtils {
     private static final String OFF = "关闭.sh";
     private static final String STATUS = "检测.sh";
     private static final String[] ZJL_KNOWN_PATHS = new String[] {
+            "/data/防跳/ZJL2.0_magisk",
             "/data/ZJL2.0_magisk",
             "/system/xbin/ZJL2.0_magisk",
             "/system/xbin/百度模式"

@@ -11,13 +11,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.alibaba.fastjson.JSONObject;
 import org.lineageos.settings.device.MainApplication;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+
 
 public class Utils {
 
@@ -90,32 +89,20 @@ public class Utils {
 
     public static IPDetailBean getPublicIpRegionName() {
         Log.d(TAG, "getPublicIpRegionName+++");
-        URL url = null;
-        InputStream inStream = null;
-        StringBuilder json = new StringBuilder();
-        try {
-            url = new URL("http://whois.pconline.com.cn/ipJson.jsp?json=true");
-            URLConnection connection = url.openConnection();
-            HttpURLConnection httpConnection = (HttpURLConnection) connection;
-            int responseCode = httpConnection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                inStream = httpConnection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "GBK"));
-                String tmp;
-                while ((tmp = reader.readLine()) != null) {
-                    json.append(tmp);
-                }
-            }
+        String url = "http://whois.pconline.com.cn/ipJson.jsp?json=true";
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        final OkHttpClient client = new OkHttpClient().newBuilder()
+                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                .build();
+        String json = null;
+        try (Response response = client.newCall(request).execute()) {
+            json = response.body().string();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                inStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
-        if (TextUtils.isEmpty(json.toString())) {
+        if (null == json) {
             return null;
         }
         try {

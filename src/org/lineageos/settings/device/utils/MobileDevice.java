@@ -20,19 +20,26 @@ public class MobileDevice {
     }
 
     static {
+        String DEVICE_INFO = SystemProperties.get("ro.leeco.devinfo", "unknown");
+        if (TextUtils.isEmpty(DEVICE_INFO)) {
+            DEVICE_INFO = "unknown";
+        }
+        DEVICE_INFO = DEVICE_INFO.toLowerCase();
         String device = Build.DEVICE;
         if (TextUtils.isEmpty(device)) {
             device = "";
         }
         device = device.toLowerCase();
 
-        if (device.contains("x2"))  {
+        if (device.contains("x2")
+                || DEVICE_INFO.contains("le_x2"))  {
             CurrentDevice = Devices.X2;
         } else if (device.contains("le_x6")) {
             CurrentDevice = Devices.X6;
         } else if (device.contains("x7")) {
             CurrentDevice = Devices.X7;
-        } else if (device.contains("s2")) {
+        } else if (device.contains("s2")
+                || DEVICE_INFO.contains("s2")) {
             CurrentDevice = Devices.S2;
         } else if (device.contains("le_zl0")
                 || device.contains("le_zl1")) {

@@ -8,46 +8,55 @@ import android.util.Log;
 public class MobileDevice {
     private static final String TAG = "MobileDevice";
 
+    private static final String UNKNOWN = "unknown";
+    private static final String EMPTY = "";
+
     public static Devices CurrentDevice;
 
     public enum Devices {
         S2,
         X2,
-        X6,
-        X7,
         ZL1,
         UNKNOWN
     }
 
     static {
-        String DEVICE_INFO = SystemProperties.get("ro.leeco.devinfo", "unknown");
-        if (TextUtils.isEmpty(DEVICE_INFO)) {
-            DEVICE_INFO = "unknown";
+        String EXTRA_DEVICE_INFO = SystemProperties.get("ro.leeco.devinfo", EMPTY);
+        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+            EXTRA_DEVICE_INFO = SystemProperties.get("ro.config.product", EMPTY);
         }
-        DEVICE_INFO = DEVICE_INFO.toLowerCase();
-        String device = Build.DEVICE;
-        if (TextUtils.isEmpty(device)) {
-            device = "";
+        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+            EXTRA_DEVICE_INFO = SystemProperties.get("ro.lineage.device", EMPTY);
         }
-        device = device.toLowerCase();
+        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+            EXTRA_DEVICE_INFO = SystemProperties.get("ro.display.series", EMPTY);
+        }
+        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+            EXTRA_DEVICE_INFO = UNKNOWN;
+        }
+        EXTRA_DEVICE_INFO = EXTRA_DEVICE_INFO.toLowerCase();
 
-        if (device.contains("x2")
-                || DEVICE_INFO.contains("le_x2"))  {
+        String BUILD_DEVICE = Build.DEVICE;
+        if (TextUtils.isEmpty(BUILD_DEVICE)) {
+            BUILD_DEVICE = UNKNOWN;
+        }
+        BUILD_DEVICE = BUILD_DEVICE.toLowerCase();
+
+        if (BUILD_DEVICE.contains("x2")
+                || EXTRA_DEVICE_INFO.contains("x2"))  {
             CurrentDevice = Devices.X2;
-        } else if (device.contains("le_x6")) {
-            CurrentDevice = Devices.X6;
-        } else if (device.contains("x7")) {
-            CurrentDevice = Devices.X7;
-        } else if (device.contains("s2")
-                || DEVICE_INFO.contains("s2")) {
+        } else if (BUILD_DEVICE.contains("s2")
+                || EXTRA_DEVICE_INFO.contains("s2")) {
             CurrentDevice = Devices.S2;
-        } else if (device.contains("le_zl0")
-                || device.contains("le_zl1")) {
+        } else if (BUILD_DEVICE.contains("le_zl0")
+                || BUILD_DEVICE.contains("le_zl1")) {
             CurrentDevice = Devices.ZL1;
         } else {
             CurrentDevice = Devices.UNKNOWN;
         }
 
-        Log.d(TAG, "CurrentDevice = " + CurrentDevice);
+        Log.d(TAG, "BUILD_DEVICE = " + BUILD_DEVICE
+                + ", EXTRA_DEVICE_INFO = " + EXTRA_DEVICE_INFO
+                + ", CurrentDevice = " + CurrentDevice);
     }
 }

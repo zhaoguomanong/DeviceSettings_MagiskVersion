@@ -22,16 +22,16 @@ public class MobileDevice {
 
     static {
         String EXTRA_DEVICE_INFO = SystemProperties.get("ro.leeco.devinfo", EMPTY);
-        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+        if (isEmpty(EXTRA_DEVICE_INFO)) {
             EXTRA_DEVICE_INFO = SystemProperties.get("ro.config.product", EMPTY);
         }
-        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+        if (isEmpty(EXTRA_DEVICE_INFO)) {
             EXTRA_DEVICE_INFO = SystemProperties.get("ro.lineage.device", EMPTY);
         }
-        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+        if (isEmpty(EXTRA_DEVICE_INFO)) {
             EXTRA_DEVICE_INFO = SystemProperties.get("ro.display.series", EMPTY);
         }
-        if (TextUtils.isEmpty(EXTRA_DEVICE_INFO)) {
+        if (isEmpty(EXTRA_DEVICE_INFO)) {
             EXTRA_DEVICE_INFO = UNKNOWN;
         }
         EXTRA_DEVICE_INFO = EXTRA_DEVICE_INFO.toLowerCase();
@@ -58,5 +58,10 @@ public class MobileDevice {
         Log.d(TAG, "BUILD_DEVICE = " + BUILD_DEVICE
                 + ", EXTRA_DEVICE_INFO = " + EXTRA_DEVICE_INFO
                 + ", CurrentDevice = " + CurrentDevice);
+    }
+
+    private static boolean isEmpty(String str) {
+        return TextUtils.isEmpty(str)
+                || "null".equalsIgnoreCase(str);
     }
 }

@@ -11,7 +11,10 @@ import java.io.File;
 public class ZJLUtils {
 
     private static final String TAG = "ZJLUtils";
-    private static final String STATUS_DISABLED = "啥都没开";
+    private static final String[] STATUS_DISABLED = new String[] {
+            "啥都没开",
+            "❌ tun2socks"
+    };
     private static final String ON = "开启.sh";
     private static final String OFF = "关闭.sh";
     private static final String STATUS = "检测.sh";
@@ -19,7 +22,8 @@ public class ZJLUtils {
             "/data/防跳/ZJL2.0_magisk",
             "/data/ZJL2.0_magisk",
             "/system/xbin/ZJL2.0_magisk",
-            "/system/xbin/百度模式"
+            "/system/xbin/百度模式",
+            "/data/xray"
     };
 
     private static String ZJL_BIN_PATH = null;
@@ -52,8 +56,8 @@ public class ZJLUtils {
                             return;
                         }
                         final boolean success = enable
-                                ? (!status.contains(STATUS_DISABLED))
-                                : (status.contains(STATUS_DISABLED));
+                                ? (!isZJLClosed(status))
+                                : (isZJLClosed(status));
                         listener.onResult(status, success);
                         isSwitchingZJL = false;
                     }
@@ -79,12 +83,24 @@ public class ZJLUtils {
                             listener.onResult(status, false);
                             return;
                         }
-                        listener.onResult(status, !status.contains(STATUS_DISABLED));
+                        listener.onResult(status, !isZJLClosed(status));
                     }
                 });
             }
         });
 
+    }
+
+    private static boolean isZJLClosed(String statusStr) {
+        if (TextUtils.isEmpty(statusStr)) {
+            return true;
+        }
+        for (String disabled : STATUS_DISABLED) {
+            if (statusStr.contains(disabled)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public interface IZJLCallback {

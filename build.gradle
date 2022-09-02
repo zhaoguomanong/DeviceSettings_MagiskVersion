@@ -32,8 +32,8 @@ android {
         applicationId "org.lineageos.settings.device.magisk"
         minSdkVersion 27
         targetSdkVersion 30
-        versionCode 20220122
-        versionName "20220122"
+        versionCode 20220902
+        versionName "20220902"
     }
 
     externalNativeBuild {
